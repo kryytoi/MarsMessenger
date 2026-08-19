@@ -16,7 +16,7 @@
             <span class="brand-mars">MARS</span> <span class="brand-sub">MESSENGER</span>
         </a>
         <div class="nav-auth">
-            {% if user and user.role == 'Администратор' %}
+            {% if user and user.role == 'admin' %}
                 <a href="/admin" class="btn btn-admin btn-sm"><i class="fa-solid fa-shield-cat"></i> Админка</a>
             {% endif %}
             <a href="/" class="btn btn-secondary btn-sm"><i class="fa-solid fa-house"></i> На главную</a>
@@ -60,8 +60,8 @@
             <h2 class="profile-username">{{ user.username }}</h2>
             <div class="status-badge-pill"><i class="fa-solid fa-bolt"></i> {{ user.custom_status }}</div>
 
-            <span class="badge-role {% if user.role == 'Администратор' %}role-admin{% else %}role-user{% endif %}">
-                <i class="fa-solid {% if user.role == 'Администратор' %}fa-shield-halved{% else %}fa-user{% endif %}"></i> {{ user.role }}
+            <span class="badge-role {% if user.role == 'admin' %}role-admin{% else %}role-user{% endif %}">
+                <i class="fa-solid {% if user.role == 'admin' %}fa-shield-halved{% else %}fa-user{% endif %}"></i> {{ user.role }}
             </span>
 
             <p class="user-bio-text">{{ user.bio or 'Описание профиля не заполнено.' }}</p>
