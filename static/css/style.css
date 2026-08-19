@@ -31,6 +31,7 @@ body {
     overflow-x: hidden;
 }
 
+/* Фоновый градиент */
 .bg-glow {
     position: fixed;
     top: -200px;
@@ -43,6 +44,7 @@ body {
     pointer-events: none;
 }
 
+/* Навигация */
 .navbar {
     width: 100%;
     max-width: 1100px;
@@ -63,6 +65,29 @@ body {
 .brand-mars { color: #fff; }
 .brand-sub { color: var(--text-secondary); font-weight: 600; }
 
+.user-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 6px 12px 6px 6px;
+    border-radius: 50px;
+    border: 1px solid var(--card-border);
+}
+
+.nav-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+/* Общие контейнеры */
 .glass-card {
     background: var(--card-bg);
     backdrop-filter: blur(20px);
@@ -73,6 +98,7 @@ body {
     box-shadow: 0 20px 40px rgba(0,0,0,0.4);
 }
 
+/* Кнопки */
 .btn {
     border-radius: var(--radius-md);
     border: none;
@@ -87,6 +113,7 @@ body {
 }
 
 .btn-sm { padding: 10px 18px; font-size: 0.88rem; }
+.btn-lg { padding: 14px 28px !important; font-size: 1.05rem !important; border-radius: var(--radius-md); }
 .btn-full { width: 100%; padding: 12px; margin-top: 10px; }
 
 .btn-primary {
@@ -111,6 +138,196 @@ body {
     transform: translateY(-2px);
 }
 
+.btn-danger {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.3);
+}
+
+/* Главная страница и Hero Блок */
+.main-container {
+    width: 100%;
+    max-width: 850px;
+    padding: 20px;
+    margin-top: 10px;
+    z-index: 2;
+}
+
+.hero-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    padding: 40px 24px;
+}
+
+.logo-wrapper {
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-logo {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 16px;
+}
+
+.hero-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.hero-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    max-width: 480px;
+    line-height: 1.5;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* Секция: Причины пользоваться Марсом */
+.features-section {
+    margin-top: 50px;
+    width: 100%;
+    text-align: center;
+}
+
+.features-header-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 24px;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    width: 100%;
+}
+
+.feature-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 28px 20px;
+    transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.feature-icon {
+    width: 54px;
+    height: 54px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 16px;
+}
+
+.feature-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.feature-card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* Сетка форм авторизации */
+.auth-box-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.auth-card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    text-align: left;
+}
+
+.auth-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    color: #fff;
+    font-weight: 700;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Поля ввода */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+input:focus {
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+}
+
+/* Страница Профиля */
 .profile-layout {
     display: grid;
     grid-template-columns: 320px 1fr;
@@ -144,7 +361,6 @@ body {
     background: #111;
 }
 
-/* Нарисованная Корона над аватаркой */
 .frame-crown-svg {
     position: absolute;
     top: -28px;
@@ -162,9 +378,7 @@ body {
     50% { transform: translateX(-50%) translateY(-5px); }
 }
 
-.upload-form {
-    margin-bottom: 20px;
-}
+.upload-form { margin-bottom: 20px; }
 
 .profile-username {
     font-size: 1.8rem;
@@ -232,37 +446,7 @@ body {
     gap: 18px;
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    text-align: left;
-}
-
-.form-group label {
-    font-size: 0.88rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-}
-
-input[type="password"] {
-    width: 100%;
-    padding: 14px 18px;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-md);
-    color: #fff;
-    font-size: 0.95rem;
-    outline: none;
-    transition: 0.2s ease;
-}
-
-input:focus {
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
-}
-
-/* Сетка магазина рамок */
+/* Магазин рамок */
 .shop-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -291,23 +475,11 @@ input:focus {
     margin-bottom: 8px;
 }
 
-.preview-crown {
-    width: 50px;
-    height: 30px;
-}
+.preview-crown { width: 50px; height: 30px; }
+.no-frame-txt { font-size: 0.8rem; color: var(--text-secondary); }
+.price-free { color: #4ade80; font-size: 0.85rem; font-weight: 700; margin-top: 4px; }
 
-.no-frame-txt {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-}
-
-.price-free {
-    color: #4ade80;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-top: 4px;
-}
-
+/* Уведомления (Flash) */
 .flash-container {
     position: fixed;
     top: 90px;
@@ -325,143 +497,11 @@ input:focus {
     backdrop-filter: blur(10px);
 }
 
-/* Главная страница и Hero Блок */
-.main-container {
-    width: 100%;
-    max-width: 850px;
-    padding: 20px;
-    margin-top: 10px;
-    z-index: 2;
-}
-
-.hero-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 16px;
-    padding: 40px 24px;
-}
-
-.logo-wrapper {
-    width: 120px;
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.hero-logo {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    border-radius: 16px;
-}
-
-.hero-title {
-    font-size: 2.2rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-}
-
-.hero-subtitle {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-    max-width: 480px;
-    line-height: 1.5;
-}
-
-.hero-actions {
-    display: flex;
-    gap: 14px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-/* Элементы юзера в шапке */
-.user-pill {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.04);
-    padding: 6px 12px 6px 6px;
-    border-radius: 50px;
-    border: 1px solid var(--card-border);
-}
-
-.nav-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.user-name {
-    font-weight: 700;
-    font-size: 0.9rem;
-}
-
-.btn-danger {
-    background: rgba(239, 68, 68, 0.15);
-    color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.btn-danger:hover {
-    background: rgba(239, 68, 68, 0.3);
-}
-
-/* Сетка форм авторизации */
-.auth-box-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
-    width: 100%;
-    margin-top: 15px;
-}
-
-.auth-card {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-md);
-    padding: 24px;
-    text-align: left;
-}
-
-.auth-card h3 {
-    font-size: 1.1rem;
-    margin-bottom: 16px;
-    color: #fff;
-    font-weight: 700;
-}
-
-.auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-input[type="text"] {
-    width: 100%;
-    padding: 12px 16px;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-md);
-    color: #fff;
-    font-size: 0.9rem;
-    outline: none;
-    transition: 0.2s ease;
-}
-
-input[type="text"]:focus {
-    border-color: rgba(255, 255, 255, 0.4);
-}
-
 .flash-card.success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
 .flash-card.error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
 .flash-card.info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
 
+/* Адаптивность */
 @media (max-width: 768px) {
     .profile-layout { grid-template-columns: 1fr; }
 }
