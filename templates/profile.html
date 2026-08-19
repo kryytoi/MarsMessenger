@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль — Mars Messenger</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <header class="navbar">
+        <a href="{{ url_for('home') }}" class="nav-brand">
+            <span class="brand-mars">MARS</span> <span class="brand-sub">MESSENGER</span>
+        </a>
+        <div class="nav-auth">
+            <a href="{{ url_for('home') }}" class="btn btn-secondary btn-sm">На главную</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-danger btn-sm">Выйти</a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-card {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <main class="profile-layout">
+        <!-- Карточка пользователя -->
+        <section class="glass-card profile-card">
+            <div class="avatar-container">
+                {% if user.active_frame == 'crown' %}
+                    <div class="frame-crown-overlay">👑</div>
+                {% endif %}
+                <img src="{{ user.avatar_url }}" alt="Avatar" class="profile-avatar">
+            </div>
+
+            <h1 class="profile-username">{{ user.username }}</h1>
+            
+            <div class="badge-role {% if user.role == 'Администратор' %}role-admin{% else %}role-user{% endif %}">
+                {% if user.role == 'Администратор' %}⚡ ADMIN{% else %}👤 ПОЛЬЗОВАТЕЛЬ{% endif %}
+            </div>
+
+            <div class="info-group">
+                <span class="info-label">Дата регистрации</span>
+                <span class="info-value">{{ user.created_at.strftime('%d.%m.%Y в %H:%M') }}</span>
+            </div>
+        </section>
+
+        <!-- Настройки и безопасность -->
+        <div class="profile-settings-grid">
+            <!-- Внешний вид (Аватарка и Рамки) -->
+            <section class="glass-card settings-card">
+                <h2>Внешний вид профиля</h2>
+                <form action="{{ url_for('update_profile') }}" method="POST" class="settings-form">
+                    <div class="form-group">
+                        <label>Ссылка на новую аватарку (URL)</label>
+                        <input type="url" name="avatar_url" value="{{ user.avatar_url }}" placeholder="https://example.com/avatar.png">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Выберите рамку профиля</label>
+                        <div class="frame-selector">
+                            <label class="frame-option">
+                                <input type="radio" name="active_frame" value="none" {% if user.active_frame == 'none' %}checked{% endif %}>
+                                <div class="frame-box">Без рамки</div>
+                            </label>
+                            <label class="frame-option">
+                                <input type="radio" name="active_frame" value="crown" {% if user.active_frame == 'crown' %}checked{% endif %}>
+                                <div class="frame-box crown-box">👑 Корона (Бесплатно)</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-full">Сохранить изменения</button>
+                </form>
+            </section>
+
+            <!-- Смена пароля -->
+            <section class="glass-card settings-card">
+                <h2>Безопасность</h2>
+                <form action="{{ url_for('change_password') }}" method="POST" class="settings-form">
+                    <div class="form-group">
+                        <label>Текущий пароль</label>
+                        <input type="password" name="current_password" placeholder="••••••••" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Новый пароль</label>
+                        <input type="password" name="new_password" placeholder="Минимум 4 символа" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-secondary btn-full">Изменить пароль</button>
+                </form>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
