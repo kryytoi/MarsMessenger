@@ -9,7 +9,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="stars-bg"></div>
+    <!-- Верхняя панель -->
+    <header class="navbar">
+        <div class="nav-brand">MARS</div>
+        <div class="nav-auth">
+            {% if user %}
+                <span class="user-greeting">Привет, <strong>{{ user.username }}</strong>!</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-small btn-secondary">Выйти</a>
+            {% else %}
+                <button onclick="openModal('loginModal')" class="btn btn-small btn-secondary">Войти</button>
+                <button onclick="openModal('registerModal')" class="btn btn-small btn-primary">Регистрация</button>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Уведомления -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
     <main class="container">
         <div class="logo-wrapper">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Mars Messenger Logo" class="main-logo">
@@ -18,9 +42,51 @@
         <p class="subtitle">Быстрый. Приватный. Межгалактический связной.</p>
         
         <div class="cta-buttons">
-            <a href="#open" class="btn btn-primary">Открыть в веб</a>
-            <a href="#download" class="btn btn-secondary">Скачать клиент</a>
+            <a href="#download" class="btn btn-primary btn-large">Скачать клиент</a>
+            {% if not user %}
+                <button onclick="openModal('registerModal')" class="btn btn-secondary btn-large">Создать аккаунт</button>
+            {% endif %}
         </div>
     </main>
+
+    <!-- Модальное окно: Войти -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Вход в Mars</h2>
+            <form action="{{ url_for('login') }}" method="POST">
+                <input type="text" name="username" placeholder="Имя пользователя" required>
+                <input type="password" name="password" placeholder="Пароль" required>
+                <button type="submit" class="btn btn-primary btn-full">Войти</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Регистрация -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('registerModal')">&times;</span>
+            <h2>Регистрация</h2>
+            <form action="{{ url_for('register') }}" method="POST">
+                <input type="text" name="username" placeholder="Имя пользователя" required>
+                <input type="password" name="password" placeholder="Пароль" required>
+                <button type="submit" class="btn btn-primary btn-full">Зарегистрироваться</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
