@@ -38,7 +38,7 @@
         <!-- Левая карточка: Инфо о юзере -->
         <div class="glass-card profile-card">
             <div class="avatar-container">
-                {% if user and user.active_frame == 'crown' %}
+                {% if user and user.selected_frame == 'crown' %}
                     <svg class="frame-crown-svg" viewBox="0 0 100 50">
                         <path d="M10,40 L20,15 L40,30 L50,5 L60,30 L80,15 L90,40 Z" fill="#ffd700" stroke="#e6c200" stroke-width="2"/>
                         <circle cx="20" cy="15" r="3" fill="#ff4d4d"/>
@@ -115,15 +115,15 @@
             <div class="glass-card settings-card">
                 <h2><i class="fa-solid fa-store"></i> Магазин рамок</h2>
                 <div class="shop-grid">
-                    <div class="shop-card {% if user.active_frame == 'none' %}active{% endif %}">
+                    <div class="shop-card {% if user.selected_frame == 'none' %}active{% endif %}">
                         <div class="preview-box"><span class="no-frame-txt">Без рамки</span></div>
                         <h4>Обычная</h4>
                         <button onclick="applyFrame('none')" class="btn btn-secondary btn-sm btn-full">
-                            {% if user.active_frame == 'none' %}Надето{% else %}Надеть{% endif %}
+                            {% if user.selected_frame == 'none' %}Надето{% else %}Надеть{% endif %}
                         </button>
                     </div>
 
-                    <div class="shop-card {% if user.active_frame == 'crown' %}active{% endif %}">
+                    <div class="shop-card {% if user.selected_frame == 'crown' %}active{% endif %}">
                         <div class="preview-box">
                             <svg class="preview-crown" viewBox="0 0 100 50">
                                 <path d="M10,40 L20,15 L40,30 L50,5 L60,30 L80,15 L90,40 Z" fill="#ffd700" stroke="#e6c200" stroke-width="2"/>
@@ -131,7 +131,7 @@
                         </div>
                         <h4>Корона</h4>
                         <button onclick="applyFrame('crown')" class="btn btn-primary btn-sm btn-full">
-                            {% if user.active_frame == 'crown' %}Надето{% else %}Надеть{% endif %}
+                            {% if user.selected_frame == 'crown' %}Надето{% else %}Надеть{% endif %}
                         </button>
                     </div>
                 </div>
