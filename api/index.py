@@ -123,8 +123,14 @@ def get_current_user():
 
 # ==================== МАРШРУТЫ (ROUTES) ====================
 
+# Универсальный маршрут: отдаёт index.html на любой запрос (кроме /api/...)
 @app.route('/')
-def home():
+@app.route('/<path:path>')
+def serve_spa(path=''):
+    # Если запрашивают несуществующий API — отдаём JSON с ошибкой
+    if path.startswith('api/'):
+        return jsonify({'error': 'API endpoint not found'}), 404
+    # Для всех остальных путей (/login, /register и т.д.) отдаём главный интерфейс
     return render_template('index.html')
 
 @app.route('/api/status')
