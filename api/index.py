@@ -85,8 +85,9 @@ class Message(db.Model):
 
 def render_app():
     """ Безопасная отдача index.html """
+    current_user = get_current_user()
     try:
-        return render_template('index.html')
+        return render_template('index.html', user=current_user)
     except Exception:
         index_file = os.path.join(TEMPLATE_DIR, 'index.html')
         if os.path.exists(index_file):
