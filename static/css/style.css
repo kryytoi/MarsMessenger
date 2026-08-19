@@ -378,6 +378,208 @@ input:focus {
     50% { transform: translateX(-50%) translateY(-5px); }
 }
 
+/* ===== Рамка: Молния ===== */
+.frame-lightning-svg {
+    position: absolute;
+    top: -12px;
+    left: -12px;
+    width: 144px;
+    height: 144px;
+    z-index: 10;
+    pointer-events: none;
+    filter: drop-shadow(0 0 6px rgba(77, 166, 255, 0.6));
+}
+.lightning-ring {
+    animation: rotate-ring 6s linear infinite;
+    transform-origin: 60px 60px;
+}
+.lightning-bolt {
+    animation: bolt-flicker 1.6s ease-in-out infinite;
+    transform-origin: center;
+}
+@keyframes rotate-ring {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+@keyframes bolt-flicker {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 2px #4da6ff); }
+    45% { opacity: 1; }
+    50% { opacity: 0.4; }
+    55% { opacity: 1; }
+    75% { opacity: 0.7; filter: drop-shadow(0 0 8px #4da6ff); }
+}
+
+/* ===== Рамка: Огонь ===== */
+.frame-fire-svg {
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    height: 44px;
+    z-index: 10;
+    pointer-events: none;
+}
+.fire-flame {
+    transform-origin: bottom center;
+    animation: flame-flicker 1.2s ease-in-out infinite;
+}
+.fire-flame-1 { animation-delay: 0s; }
+.fire-flame-2 { animation-delay: 0.25s; }
+.fire-flame-3 { animation-delay: 0.5s; }
+@keyframes flame-flicker {
+    0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.95; }
+    30% { transform: scaleY(1.15) scaleX(0.95); opacity: 1; }
+    60% { transform: scaleY(0.9) scaleX(1.05); opacity: 0.85; }
+}
+
+/* ===== Рамка: Марсианская пыль ===== */
+.frame-dust-glow {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    z-index: 5;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(255, 99, 46, 0.35) 0%, rgba(255, 99, 46, 0.12) 55%, rgba(255, 99, 46, 0) 75%);
+    animation: dust-pulse 3s ease-in-out infinite;
+}
+@keyframes dust-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.08); opacity: 1; }
+}
+
+.preview-lightning, .preview-fire { width: 50px; height: 40px; }
+.preview-dust {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 99, 46, 0.5) 0%, rgba(255, 99, 46, 0.15) 60%, rgba(255, 99, 46, 0) 80%);
+    animation: dust-pulse 3s ease-in-out infinite;
+}
+
+/* ===== Рамка: НЛО ===== */
+.frame-ufo-svg {
+    position: absolute;
+    top: -50px;
+    left: -10px;
+    width: 140px;
+    height: 140px;
+    z-index: 10;
+    pointer-events: none;
+}
+.ufo-craft {
+    animation: ufo-hover 2.4s ease-in-out infinite;
+    transform-origin: center;
+}
+.ufo-beam {
+    animation: beam-flicker 2s ease-in-out infinite;
+}
+@keyframes ufo-hover {
+    0%, 100% { transform: translateX(0) translateY(0); }
+    25% { transform: translateX(4px) translateY(-3px); }
+    75% { transform: translateX(-4px) translateY(-3px); }
+}
+@keyframes beam-flicker {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+/* ===== Рамка: Кольца Сатурна ===== */
+.frame-saturn-svg {
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    width: 180px;
+    height: 180px;
+    z-index: 5;
+    pointer-events: none;
+    animation: saturn-spin 10s linear infinite;
+}
+@keyframes saturn-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ===== Рамка: Комета ===== */
+.frame-comet-svg {
+    position: absolute;
+    top: -12px;
+    left: -12px;
+    width: 144px;
+    height: 144px;
+    z-index: 10;
+    pointer-events: none;
+}
+.comet-head, .comet-tail {
+    animation: comet-fly 2.4s ease-in-out infinite;
+}
+@keyframes comet-fly {
+    0%, 100% { transform: translate(0, 0); opacity: 1; }
+    50% { transform: translate(-6px, 6px); opacity: 0.75; }
+}
+
+/* ===== Рамка: Ракета ===== */
+.frame-rocket-svg {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 140px;
+    height: 140px;
+    z-index: 10;
+    pointer-events: none;
+}
+.rocket-craft {
+    animation: rocket-fly 2s ease-in-out infinite;
+    transform-origin: center;
+}
+.rocket-exhaust {
+    animation: flame-flicker 0.4s ease-in-out infinite;
+    transform-origin: top center;
+}
+@keyframes rocket-fly {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(3px, -6px); }
+}
+
+/* ===== Рамка: Инопланетянин ===== */
+.frame-alien-svg {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 140px;
+    height: 140px;
+    z-index: 10;
+    pointer-events: none;
+}
+.alien-peek {
+    animation: alien-peek-anim 3.5s ease-in-out infinite;
+    transform-origin: left center;
+}
+@keyframes alien-peek-anim {
+    0%, 70%, 100% { transform: translateX(-16px); }
+    85% { transform: translateX(0); }
+}
+
+/* ===== Рамка: Кристалл ===== */
+.frame-crystal-svg {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    width: 140px;
+    height: 140px;
+    z-index: 10;
+    pointer-events: none;
+    filter: drop-shadow(0 0 6px rgba(143, 216, 255, 0.5));
+    animation: crystal-shine 3s ease-in-out infinite;
+}
+@keyframes crystal-shine {
+    0%, 100% { opacity: 0.85; filter: drop-shadow(0 0 4px rgba(143, 216, 255, 0.4)); }
+    50% { opacity: 1; filter: drop-shadow(0 0 10px rgba(143, 216, 255, 0.8)); }
+}
+
 .upload-form { margin-bottom: 20px; }
 
 .profile-username {
