@@ -277,7 +277,7 @@ def admin_users():
 import base64
 
 ALLOWED_THEMES = {'mars', 'purple', 'green'}
-ALLOWED_FRAMES = {'none', 'crown'}
+ALLOWED_FRAMES = {'none', 'crown', 'lightning', 'fire', 'dust', 'ufo', 'saturn', 'comet', 'rocket', 'alien', 'crystal'}
 
 @app.route('/admin/manage-user/<int:user_id>', methods=['POST'])
 def manage_user(user_id):
