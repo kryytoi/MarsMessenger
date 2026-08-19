@@ -1,1 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Марс — Профиль {{ user.username if user else 'Гость' }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="bg-glow"></div>
 
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <span class="brand-mars">MARS</span> <span class="brand-sub">MESSENGER</span>
+        </a>
+        <div class="nav-auth">
+            <a href="/" class="btn btn-secondary btn-sm"><i class="fa-solid fa-house"></i> На главную</a>
+            <a href="/logout" class="btn btn-danger btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for category, message in messages %}
+            <div class="flash-card {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="profile-layout">
+        <!-- Левая карточка: Профиль -->
+        <div class="glass-card profile-card">
+            <div class="avatar-container">
+                {% if user and user.active_frame == 'crown' %}
+                    <svg class="frame-crown-svg" viewBox="0 0 100 50">
+                        <path d="M10,40 L20,15 L40,30 L50,5 L60,30 L80,15 L90,40 Z" fill="#ffd700" stroke="#e6c200" stroke-width="2"/>
+                        <circle cx="20" cy="15" r="3" fill="#ff4d4d"/>
+                        <circle cx="50" cy="5" r="4" fill="#4da6ff"/>
+                        <circle cx="80" cy="15" r="3" fill="#ff4d4d"/>
+                    </svg>
+                {% endif %}
+                <img src="{{ user.avatar_url if user and user.avatar_url else 'https://api.dicebear.com/7.x/bottts/svg?seed=Mars' }}" class="profile-avatar" alt="Avatar">
+            </div>
+
+            <form action="/upload-avatar" method="POST" enctype="multipart/form-data" class="upload-form">
+                <label for="avatar-input" class="btn btn-secondary btn-sm">
+                    <i class="fa-solid fa-camera"></i> Изменить аватар
+                </label>
+                <input type="file" id="avatar-input" name="avatar" accept="image/*" onchange="this.form.submit()" style="display:none;">
+            </form>
+
+            <h2 class="profile-username">{{ user.username if user else 'Пользователь' }}</h2>
+            <span class="badge-role {% if user and user.role == 'Администратор' %}role-admin{% else %}role-user{% endif %}">
+                <i class="fa-solid {% if user and user.role == 'Администратор' %}fa-shield-halved{% else %}fa-user{% endif %}"></i> {{ user.role if user else 'Пользователь' }}
+            </span>
+
+            <div class="info-group">
+                <span class="info-label"><i class="fa-solid fa-calendar-days"></i> Дата регистрации</span>
+                <span class="info-value">
+                    {% if user and user.created_at %}
+                        {{ user.created_at.strftime('%d.%m.%Y') }}
+                    {% else %}
+                        Не указана
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Правая часть: Настройки и Магазин -->
+        <div class="profile-settings-grid">
+            <!-- Настройки -->
+            <div class="glass-card settings-card">
+                <h2><i class="fa-solid fa-user-gear"></i> Настройки профиля</h2>
+                <form action="/change_password" method="POST" class="settings-form">
+                    <div class="form-group">
+                        <label>Текущий пароль</label>
+                        <input type="password" name="current_password" required placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>Новый пароль</label>
+                        <input type="password" name="new_password" required placeholder="Минимум 4 символа">
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-key"></i> Изменить пароль</button>
+                </form>
+            </div>
+
+            <!-- Магазин рамок -->
+            <div class="glass-card settings-card">
+                <h2><i class="fa-solid fa-store"></i> Магазин рамок</h2>
+                <div class="shop-grid">
+                    <div class="shop-card {% if user and user.active_frame == 'none' %}active{% endif %}">
+                        <div class="preview-box">
+                            <span class="no-frame-txt">Без рамки</span>
+                        </div>
+                        <h4>Обычная</h4>
+                        <p class="price-free">Бесплатно</p>
+                        <button onclick="applyFrame('none')" class="btn btn-secondary btn-sm btn-full">
+                            {% if user and user.active_frame == 'none' %}Надето{% else %}Надеть{% endif %}
+                        </button>
+                    </div>
+
+                    <div class="shop-card {% if user and user.active_frame == 'crown' %}active{% endif %}">
+                        <div class="preview-box">
+                            <svg class="preview-crown" viewBox="0 0 100 50">
+                                <path d="M10,40 L20,15 L40,30 L50,5 L60,30 L80,15 L90,40 Z" fill="#ffd700" stroke="#e6c200" stroke-width="2"/>
+                                <circle cx="20" cy="15" r="3" fill="#ff4d4d"/>
+                                <circle cx="50" cy="5" r="4" fill="#4da6ff"/>
+                                <circle cx="80" cy="15" r="3" fill="#ff4d4d"/>
+                            </svg>
+                        </div>
+                        <h4>Корона</h4>
+                        <p class="price-free">Бесплатно</p>
+                        <button onclick="applyFrame('crown')" class="btn btn-primary btn-sm btn-full">
+                            {% if user and user.active_frame == 'crown' %}Надето{% else %}Надеть{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function applyFrame(frameId) {
+        fetch('/shop/buy-frame', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({frame_id: frameId})
+        }).then(() => location.reload());
+    }
+    </script>
+</body>
+</html>
