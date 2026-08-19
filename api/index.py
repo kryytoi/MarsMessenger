@@ -276,6 +276,39 @@ def admin_users():
 
 import base64
 
+ALLOWED_THEMES = {'mars', 'purple', 'green'}
+ALLOWED_FRAMES = {'none', 'crown'}
+
+@app.route('/profile/update-theme', methods=['POST'])
+def update_theme():
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Необходима авторизация'}), 401
+
+    data = request.get_json(silent=True) or {}
+    theme = data.get('theme', '')
+    if theme not in ALLOWED_THEMES:
+        return jsonify({'error': 'Недопустимая тема'}), 400
+
+    user.theme = theme
+    db.session.commit()
+    return jsonify({'message': 'Тема обновлена', 'theme': user.theme})
+
+@app.route('/shop/buy-frame', methods=['POST'])
+def buy_frame():
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Необходима авторизация'}), 401
+
+    data = request.get_json(silent=True) or {}
+    frame_id = data.get('frame_id', '')
+    if frame_id not in ALLOWED_FRAMES:
+        return jsonify({'error': 'Недопустимая рамка'}), 400
+
+    user.selected_frame = frame_id
+    db.session.commit()
+    return jsonify({'message': 'Рамка применена', 'selected_frame': user.selected_frame})
+
 @app.route('/upload-avatar', methods=['POST'])
 def upload_avatar():
     user = get_current_user()
