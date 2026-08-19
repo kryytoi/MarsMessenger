@@ -21,7 +21,7 @@
 }
 
 body {
-    background-color: var(--bg-dark);
+    background: #07080c url('/static/images/bg.svg') center/cover no-repeat fixed;
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
