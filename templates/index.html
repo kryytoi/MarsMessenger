@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mars Messenger</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="bg-glow"></div>
@@ -17,7 +20,7 @@
         <div class="nav-auth">
             {% if user %}
                 <div class="user-pill">
-                    <img src="{{ user.avatar_url or '/static/images/default_avatar.png' }}" class="nav-avatar" alt="Avatar">
+                    <img src="{{ user.avatar_url or 'https://api.dicebear.com/7.x/bottts/svg?seed=Mars' }}" class="nav-avatar" alt="Avatar">
                     <span class="user-name">{{ user.username }}</span>
                     <a href="/profile" class="btn btn-secondary btn-sm"><i class="fa-solid fa-user"></i> Профиль</a>
                     <a href="/logout" class="btn btn-danger btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a>
@@ -37,6 +40,7 @@
     {% endwith %}
 
     <main class="main-container">
+        <!-- Главный баннер -->
         <div class="glass-card hero-section">
             <div class="logo-wrapper">
                 <img src="/static/images/logo.png" class="hero-logo" alt="Mars Logo" onerror="this.style.display='none'">
@@ -46,13 +50,11 @@
             <p class="hero-subtitle">Скорость света. Абсолютная приватность. Новое поколение общения.</p>
 
             {% if user %}
-                <!-- Действия для вошедшего пользователя -->
                 <div class="hero-actions">
-                    <a href="/profile" class="btn btn-primary"><i class="fa-solid fa-user"></i> Мой профиль</a>
-                    <a href="#" class="btn btn-secondary"><i class="fa-solid fa-download"></i> Скачать клиент</a>
+                    <a href="/profile" class="btn btn-primary btn-lg"><i class="fa-solid fa-user"></i> Мой профиль</a>
+                    <a href="#" class="btn btn-secondary btn-lg"><i class="fa-solid fa-download"></i> Скачать клиент</a>
                 </div>
             {% else %}
-                <!-- Формы входа и регистрации (видна только гостям) -->
                 <div class="auth-box-container">
                     <div class="auth-card">
                         <h3>Вход в Mars</h3>
@@ -63,7 +65,7 @@
                             <div class="form-group">
                                 <input type="password" name="password" placeholder="Пароль" required>
                             </div>
-                            <button type="submit" class="btn btn-primary btn-full">Авторизоваться</button>
+                            <button type="submit" class="btn btn-primary btn-full btn-lg">Авторизоваться</button>
                         </form>
                     </div>
 
@@ -76,11 +78,41 @@
                             <div class="form-group">
                                 <input type="password" name="password" placeholder="Придумайте пароль" required>
                             </div>
-                            <button type="submit" class="btn btn-secondary btn-full">Создать профиль</button>
+                            <button type="submit" class="btn btn-secondary btn-full btn-lg">Создать профиль</button>
                         </form>
                     </div>
                 </div>
             {% endif %}
+        </div>
+
+        <!-- Секция: Причины пользоваться Марсом -->
+        <div class="features-section">
+            <h2 class="features-header-title">Причины пользоваться Марсом</h2>
+            <div class="features-grid">
+                <div class="glass-card feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <h3>Шифрование</h3>
+                    <p>Конфиденциальность на максимум.</p>
+                </div>
+
+                <div class="glass-card feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-palette"></i>
+                    </div>
+                    <h3>Стиль</h3>
+                    <p>Стиль на свой вкус и цвет.</p>
+                </div>
+
+                <div class="glass-card feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3>Безопасность</h3>
+                    <p>Данные защищены от перехвата, слива и взлома!</p>
+                </div>
+            </div>
         </div>
     </main>
 </body>
