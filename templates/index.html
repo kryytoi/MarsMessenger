@@ -3,34 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mars Messenger — Межгалактическая связь</title>
+    <title>Mars Messenger</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="bg-glow"></div>
 
-    <!-- Верхняя навигация -->
-    <header class="navbar">
-        <div class="nav-brand">
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
             <span class="brand-mars">MARS</span> <span class="brand-sub">MESSENGER</span>
-        </div>
+        </a>
         <div class="nav-auth">
             {% if user %}
-                <a href="{{ url_for('profile') }}" class="user-chip">
-                    <img src="{{ user.avatar_url }}" alt="Avatar" class="mini-avatar">
-                    <span>{{ user.username }}</span>
-                </a>
-                <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Выйти</a>
-            {% else %}
-                <button onclick="openModal('loginModal')" class="btn btn-secondary btn-sm">Войти</button>
-                <button onclick="openModal('registerModal')" class="btn btn-primary btn-sm">Регистрация</button>
+                <div class="user-pill">
+                    <img src="{{ user.avatar_url or '/static/images/default_avatar.png' }}" class="nav-avatar" alt="Avatar">
+                    <span class="user-name">{{ user.username }}</span>
+                    <a href="/profile" class="btn btn-secondary btn-sm"><i class="fa-solid fa-user"></i> Профиль</a>
+                    <a href="/logout" class="btn btn-danger btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a>
+                </div>
             {% endif %}
         </div>
-    </header>
+    </nav>
 
-    <!-- Уведомления -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <div class="flash-container">
@@ -41,53 +36,52 @@
       {% endif %}
     {% endwith %}
 
-    <main class="hero-container">
-        <div class="logo-card">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Mars Logo" class="hero-logo">
-        </div>
-        <h1 class="hero-title">MARS MESSENGER</h1>
-        <p class="hero-subtitle">Скорость света. Абсолютная приватность. Новое поколение общения.</p>
-        
-        <div class="hero-actions">
-            <a href="#download" class="btn btn-primary btn-lg">Скачать клиент</a>
+    <main class="main-container">
+        <div class="glass-card hero-section">
+            <div class="logo-wrapper">
+                <img src="/static/images/logo.png" class="hero-logo" alt="Mars Logo" onerror="this.style.display='none'">
+            </div>
+            
+            <h1 class="hero-title">MARS MESSENGER</h1>
+            <p class="hero-subtitle">Скорость света. Абсолютная приватность. Новое поколение общения.</p>
+
             {% if user %}
-                <a href="{{ url_for('profile') }}" class="btn btn-secondary btn-lg">Мой профиль</a>
+                <!-- Действия для вошедшего пользователя -->
+                <div class="hero-actions">
+                    <a href="/profile" class="btn btn-primary"><i class="fa-solid fa-user"></i> Мой профиль</a>
+                    <a href="#" class="btn btn-secondary"><i class="fa-solid fa-download"></i> Скачать клиент</a>
+                </div>
             {% else %}
-                <button onclick="openModal('registerModal')" class="btn btn-secondary btn-lg">Создать аккаунт</button>
+                <!-- Формы входа и регистрации (видна только гостям) -->
+                <div class="auth-box-container">
+                    <div class="auth-card">
+                        <h3>Вход в Mars</h3>
+                        <form action="/login" method="POST" class="auth-form">
+                            <div class="form-group">
+                                <input type="text" name="username" placeholder="Логин" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="password" name="password" placeholder="Пароль" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full">Авторизоваться</button>
+                        </form>
+                    </div>
+
+                    <div class="auth-card">
+                        <h3>Присоединиться к Mars</h3>
+                        <form action="/register" method="POST" class="auth-form">
+                            <div class="form-group">
+                                <input type="text" name="username" placeholder="Придумайте логин" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="password" name="password" placeholder="Придумайте пароль" required>
+                            </div>
+                            <button type="submit" class="btn btn-secondary btn-full">Создать профиль</button>
+                        </form>
+                    </div>
+                </div>
             {% endif %}
         </div>
     </main>
-
-    <!-- Модальное окно: Войти -->
-    <div id="loginModal" class="modal">
-        <div class="modal-card">
-            <span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
-            <h2>Вход в Mars</h2>
-            <form action="{{ url_for('login') }}" method="POST" class="auth-form">
-                <input type="text" name="username" placeholder="Имя пользователя" required>
-                <input type="password" name="password" placeholder="Пароль" required>
-                <button type="submit" class="btn btn-primary btn-full">Авторизоваться</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Модальное окно: Регистрация -->
-    <div id="registerModal" class="modal">
-        <div class="modal-card">
-            <span class="close-btn" onclick="closeModal('registerModal')">&times;</span>
-            <h2>Присоединиться к Mars</h2>
-            <form action="{{ url_for('register') }}" method="POST" class="auth-form">
-                <input type="text" name="username" placeholder="Придумайте имя пользователя" required>
-                <input type="password" name="password" placeholder="Придумайте пароль" required>
-                <button type="submit" class="btn btn-primary btn-full">Создать профиль</button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; }
-    </script>
 </body>
 </html>
