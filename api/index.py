@@ -1,9 +1,8 @@
 import os
 from datetime import datetime
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, render_template
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask, request, jsonify, session, render_template
 from sqlalchemy import text
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
@@ -26,7 +25,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), default='user')  # 'admin' или 'user'
+    role = db.Column(db.String(20), default='user')
     bio = db.Column(db.Text, default='Исследователь Марса')
     custom_status = db.Column(db.String(50), default='На Марсе 🚀')
     theme = db.Column(db.String(30), default='mars')
@@ -55,7 +54,7 @@ class Message(db.Model):
     __tablename__ = 'message'
     id = db.Column(db.Integer, primary_key=True)
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # None = Общий чат
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -79,7 +78,6 @@ def init_db():
     try:
         with app.app_context():
             db.create_all()
-            # Авто-добавление отсутствующих колонок в таблицу user
             columns_to_add = [
                 ('role', 'VARCHAR(20) DEFAULT "user"'),
                 ('bio', 'TEXT DEFAULT "Исследователь Марса"'),
@@ -98,7 +96,7 @@ def init_db():
                         conn.execute(text(f'ALTER TABLE "user" ADD COLUMN {col_name} {col_type};'))
                         conn.commit()
                     except Exception:
-                        pass  # Колонка уже была создана ранее
+                        pass
     except Exception as e:
         print(f"Ошибка при инициализации БД: {e}")
 
@@ -115,29 +113,17 @@ def get_current_user():
     user = User.query.get(user_id)
     if user:
         user.last_seen = datetime.utcnow()
-        # Выдача прав администратора ключевым аккаунтам
         if user.username in ADMIN_USERNAMES and user.role != 'admin':
             user.role = 'admin'
         db.session.commit()
     return user
 
-# ==================== МАРШРУТЫ (ROUTES) ====================
-
-# Универсальный маршрут: отдаёт index.html на любой запрос (кроме /api/...)
-@app.route('/')
-@app.route('/<path:path>')
-def serve_spa(path=''):
-    # Если запрашивают несуществующий API — отдаём JSON с ошибкой
-    if path.startswith('api/'):
-        return jsonify({'error': 'API endpoint not found'}), 404
-    # Для всех остальных путей (/login, /register и т.д.) отдаём главный интерфейс
-    return render_template('index.html')
+# ==================== API ROUTES ====================
 
 @app.route('/api/status')
 def status():
     return jsonify({"status": "online", "system": "Mars Messenger API", "version": "1.0"})
 
-# Регистрация
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json() or {}
@@ -168,7 +154,6 @@ def register():
     session['user_id'] = new_user.id
     return jsonify({'message': 'Регистрация успешна', 'user': new_user.to_dict()})
 
-# Вход
 @app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json() or {}
@@ -188,13 +173,11 @@ def login():
     session['user_id'] = user.id
     return jsonify({'message': 'Успешный вход', 'user': user.to_dict()})
 
-# Выход
 @app.route('/api/logout', methods=['POST', 'GET'])
 def logout():
     session.pop('user_id', None)
     return jsonify({'message': 'Вышли из системы'})
 
-# Данные текущего пользователя
 @app.route('/api/me', methods=['GET'])
 def me():
     user = get_current_user()
@@ -202,7 +185,6 @@ def me():
         return jsonify({'authenticated': False}), 401
     return jsonify({'authenticated': True, 'user': user.to_dict()})
 
-# Обновление профиля
 @app.route('/api/profile/update', methods=['POST'])
 def update_profile():
     user = get_current_user()
@@ -225,7 +207,6 @@ def update_profile():
     db.session.commit()
     return jsonify({'message': 'Профиль успешно обновлен', 'user': user.to_dict()})
 
-# Смена пароля
 @app.route('/api/change-password', methods=['POST'])
 def change_password():
     user = get_current_user()
@@ -246,7 +227,6 @@ def change_password():
     db.session.commit()
     return jsonify({'message': 'Пароль успешно изменен'})
 
-# Чат и сообщения
 @app.route('/api/messages', methods=['GET', 'POST'])
 def handle_messages():
     user = get_current_user()
@@ -271,12 +251,10 @@ def handle_messages():
         db.session.commit()
         return jsonify({'message': 'Отправлено', 'data': msg.to_dict()})
 
-    # Получение последних 50 сообщений общего чата
     messages = Message.query.filter_by(receiver_id=None).order_by(Message.timestamp.desc()).limit(50).all()
     messages.reverse()
     return jsonify([m.to_dict() for m in messages])
 
-# Админ-панель: список пользователей
 @app.route('/api/admin/users', methods=['GET'])
 def admin_users():
     user = get_current_user()
@@ -286,7 +264,6 @@ def admin_users():
     users = User.query.order_by(User.id.asc()).all()
     return jsonify([u.to_dict() for u in users])
 
-# Админ-панель: смена роли пользователя
 @app.route('/api/admin/user/<int:user_id>/role', methods=['POST'])
 def admin_set_role(user_id):
     user = get_current_user()
@@ -302,6 +279,15 @@ def admin_set_role(user_id):
     target_user.role = new_role
     db.session.commit()
     return jsonify({'message': f'Роль пользователя {target_user.username} изменена на {new_role}'})
+
+# ==================== CATCH-ALL ROUTE (В САМОМ КОНЦЕ!) ====================
+
+@app.route('/', defaults={'path': ''}, methods=['GET'])
+@app.route('/<path:path>', methods=['GET'])
+def serve_spa(path):
+    if path.startswith('api/'):
+        return jsonify({'error': 'API endpoint not found'}), 404
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
