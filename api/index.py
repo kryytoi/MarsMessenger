@@ -1,6 +1,7 @@
 import os
 import base64
 import requests
+import time
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -58,18 +59,22 @@ def save_avatar_to_github(file_storage, username):
         return None
     
     file_bytes = file_storage.read()
-    ext = file_storage.filename.split('.')[-1].lower()
+    ext = file_storage.filename.split('.')[-1].lower() if '.' in file_storage.filename else 'png'
     filename = f"{username}_avatar.{ext}"
     
     url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/avatarks/{filename}"
-    headers = {"Authorization": f"token {GITHUB_TOKEN}"}
+    headers = {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
     
+    # Проверяем, существует ли уже файл, чтобы получить его sha
     get_res = requests.get(url, headers=headers)
     sha = get_res.json().get('sha') if get_res.status_code == 200 else None
 
     content_b64 = base64.b64encode(file_bytes).decode('utf-8')
     data = {
-        "message": f"Upload avatar for {username}",
+        "message": f"Update avatar for {username}",
         "content": content_b64,
         "branch": "main"
     }
@@ -78,9 +83,10 @@ def save_avatar_to_github(file_storage, username):
 
     put_res = requests.put(url, json=data, headers=headers)
     if put_res.status_code in [200, 201]:
-        return f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/avatarks/{filename}"
+        # ?v=timestamp заставляет браузер и GitHub CDN сразу подгружать новую картинку
+        timestamp = int(time.time())
+        return f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/avatarks/{filename}?v={timestamp}"
     return None
-
 @app.route('/')
 def home():
     user = get_current_user()
