@@ -279,6 +279,36 @@ import base64
 ALLOWED_THEMES = {'mars', 'purple', 'green'}
 ALLOWED_FRAMES = {'none', 'crown'}
 
+@app.route('/admin/manage-user/<int:user_id>', methods=['POST'])
+def manage_user(user_id):
+    admin = get_current_user()
+    if not admin or admin.role != 'admin':
+        return redirect('/')
+
+    target = User.query.get(user_id)
+    action = request.form.get('action', '')
+
+    if target and action == 'toggle_role':
+        target.role = 'user' if target.role == 'admin' else 'admin'
+        db.session.commit()
+
+    return redirect('/admin')
+
+@app.route('/profile/update-bio', methods=['POST'])
+def update_bio():
+    user = get_current_user()
+    if not user:
+        return redirect('/login')
+
+    data = request.get_json(silent=True) or request.form
+    if 'custom_status' in data:
+        user.custom_status = data.get('custom_status', '').strip() or user.custom_status
+    if 'bio' in data:
+        user.bio = data.get('bio', '').strip()
+
+    db.session.commit()
+    return redirect('/profile')
+
 @app.route('/profile/update-theme', methods=['POST'])
 def update_theme():
     user = get_current_user()
@@ -346,7 +376,8 @@ def admin_page():
     user = get_current_user()
     if not user or user.role != 'admin':
         return redirect('/')
-    return render_template('admin.html', user=user)
+    users = User.query.order_by(User.id.asc()).all()
+    return render_template('admin.html', user=user, users=users)
 
 # ==================== CATCH-ALL ROUTE ====================
 
