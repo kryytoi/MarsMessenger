@@ -274,6 +274,33 @@ def admin_users():
     users = User.query.order_by(User.id.asc()).all()
     return jsonify([u.to_dict() for u in users])
 
+import base64
+
+@app.route('/upload-avatar', methods=['POST'])
+def upload_avatar():
+    user = get_current_user()
+    if not user:
+        return redirect('/login')
+
+    file = request.files.get('avatar')
+    if not file or file.filename == '':
+        return redirect('/profile')
+
+    allowed_types = {'image/png', 'image/jpeg', 'image/gif', 'image/webp'}
+    if file.mimetype not in allowed_types:
+        return redirect('/profile')
+
+    file_bytes = file.read()
+    # Ограничение размера ~2MB, чтобы не раздувать базу
+    if len(file_bytes) > 2 * 1024 * 1024:
+        return redirect('/profile')
+
+    encoded = base64.b64encode(file_bytes).decode('utf-8')
+    user.avatar_url = f'data:{file.mimetype};base64,{encoded}'
+    db.session.commit()
+
+    return redirect('/profile')
+
 @app.route('/profile', methods=['GET'])
 def profile_page():
     user = get_current_user()
