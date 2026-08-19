@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="{{ user.theme if user else 'mars' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Марс — Админ Панель</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <span class="brand-mars">MARS</span> <span class="brand-sub">ADMIN</span>
+        </a>
+        <div class="nav-auth">
+            <a href="/profile" class="btn btn-secondary btn-sm"><i class="fa-solid fa-user"></i> Профиль</a>
+            <a href="/logout" class="btn btn-danger btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a>
+        </div>
+    </nav>
+
+    <main class="main-container max-wide">
+        <div class="glass-card">
+            <h2><i class="fa-solid fa-users-gear"></i> Управление пользователями</h2>
+            
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Юзер</th>
+                            <th>Статус</th>
+                            <th>Роль</th>
+                            <th>Рамка</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td>#{{ u.id }}</td>
+                            <td class="user-cell">
+                                <img src="{{ u.avatar_url or 'https://api.dicebear.com/7.x/bottts/svg?seed=Mars' }}" class="table-avatar">
+                                <strong>{{ u.username }}</strong>
+                            </td>
+                            <td>
+                                {% if u.is_online %}
+                                    <span class="badge-status online"><i class="fa-solid fa-circle"></i> Online</span>
+                                {% else %}
+                                    <span class="badge-status offline"><i class="fa-solid fa-circle"></i> Offline</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge-role {% if u.role == 'Администратор' %}role-admin{% else %}role-user{% endif %}">
+                                    {{ u.role }}
+                                </span>
+                            </td>
+                            <td>{{ u.active_frame }}</td>
+                            <td>
+                                <form action="/admin/manage-user/{{ u.id }}" method="POST" class="admin-actions-form">
+                                    <input type="hidden" name="action" value="toggle_role">
+                                    <button type="submit" class="btn btn-secondary btn-sm">
+                                        {% if u.role == 'Администратор' %}Снять админа{% else %}Сделать админом{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
