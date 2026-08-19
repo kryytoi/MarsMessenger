@@ -3,22 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mars Messenger</title>
+    <title>Mars Messenger — Межгалактическая связь</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Верхняя панель -->
+    <div class="bg-glow"></div>
+
+    <!-- Верхняя навигация -->
     <header class="navbar">
-        <div class="nav-brand">MARS</div>
+        <div class="nav-brand">
+            <span class="brand-mars">MARS</span> <span class="brand-sub">MESSENGER</span>
+        </div>
         <div class="nav-auth">
             {% if user %}
-                <span class="user-greeting">Привет, <strong>{{ user.username }}</strong>!</span>
-                <a href="{{ url_for('logout') }}" class="btn btn-small btn-secondary">Выйти</a>
+                <a href="{{ url_for('profile') }}" class="user-chip">
+                    <img src="{{ user.avatar_url }}" alt="Avatar" class="mini-avatar">
+                    <span>{{ user.username }}</span>
+                </a>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Выйти</a>
             {% else %}
-                <button onclick="openModal('loginModal')" class="btn btn-small btn-secondary">Войти</button>
-                <button onclick="openModal('registerModal')" class="btn btn-small btn-primary">Регистрация</button>
+                <button onclick="openModal('loginModal')" class="btn btn-secondary btn-sm">Войти</button>
+                <button onclick="openModal('registerModal')" class="btn btn-primary btn-sm">Регистрация</button>
             {% endif %}
         </div>
     </header>
@@ -26,67 +33,61 @@
     <!-- Уведомления -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="flash-messages">
+        <div class="flash-container">
           {% for category, message in messages %}
-            <div class="flash {{ category }}">{{ message }}</div>
+            <div class="flash-card {{ category }}">{{ message }}</div>
           {% endfor %}
         </div>
       {% endif %}
     {% endwith %}
 
-    <main class="container">
-        <div class="logo-wrapper">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Mars Messenger Logo" class="main-logo">
+    <main class="hero-container">
+        <div class="logo-card">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Mars Logo" class="hero-logo">
         </div>
-        <h1 class="title">MARS MESSENGER</h1>
-        <p class="subtitle">Быстрый. Приватный. Межгалактический связной.</p>
+        <h1 class="hero-title">MARS MESSENGER</h1>
+        <p class="hero-subtitle">Скорость света. Абсолютная приватность. Новое поколение общения.</p>
         
-        <div class="cta-buttons">
-            <a href="#download" class="btn btn-primary btn-large">Скачать клиент</a>
-            {% if not user %}
-                <button onclick="openModal('registerModal')" class="btn btn-secondary btn-large">Создать аккаунт</button>
+        <div class="hero-actions">
+            <a href="#download" class="btn btn-primary btn-lg">Скачать клиент</a>
+            {% if user %}
+                <a href="{{ url_for('profile') }}" class="btn btn-secondary btn-lg">Мой профиль</a>
+            {% else %}
+                <button onclick="openModal('registerModal')" class="btn btn-secondary btn-lg">Создать аккаунт</button>
             {% endif %}
         </div>
     </main>
 
     <!-- Модальное окно: Войти -->
     <div id="loginModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-card">
             <span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
             <h2>Вход в Mars</h2>
-            <form action="{{ url_for('login') }}" method="POST">
+            <form action="{{ url_for('login') }}" method="POST" class="auth-form">
                 <input type="text" name="username" placeholder="Имя пользователя" required>
                 <input type="password" name="password" placeholder="Пароль" required>
-                <button type="submit" class="btn btn-primary btn-full">Войти</button>
+                <button type="submit" class="btn btn-primary btn-full">Авторизоваться</button>
             </form>
         </div>
     </div>
 
     <!-- Модальное окно: Регистрация -->
     <div id="registerModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-card">
             <span class="close-btn" onclick="closeModal('registerModal')">&times;</span>
-            <h2>Регистрация</h2>
-            <form action="{{ url_for('register') }}" method="POST">
-                <input type="text" name="username" placeholder="Имя пользователя" required>
-                <input type="password" name="password" placeholder="Пароль" required>
-                <button type="submit" class="btn btn-primary btn-full">Зарегистрироваться</button>
+            <h2>Присоединиться к Mars</h2>
+            <form action="{{ url_for('register') }}" method="POST" class="auth-form">
+                <input type="text" name="username" placeholder="Придумайте имя пользователя" required>
+                <input type="password" name="password" placeholder="Придумайте пароль" required>
+                <button type="submit" class="btn btn-primary btn-full">Создать профиль</button>
             </form>
         </div>
     </div>
 
     <script>
-        function openModal(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-            }
-        }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        window.onclick = function(e) { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; }
     </script>
 </body>
 </html>
