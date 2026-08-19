@@ -5,7 +5,12 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text
 
-app = Flask(__name__, template_folder='../templates', static_folder='../static')
+# Корректное определение абсолютных путей для Vercel Serverless
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+
+app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'mars-messenger-super-secret-key-2026')
 
 # Настройка базы данных
@@ -72,7 +77,18 @@ class Message(db.Model):
             'timestamp': self.timestamp.strftime('%H:%M:%S') if self.timestamp else ''
         }
 
-# ==================== МИГРАЦИЯ БД ====================
+# ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
+
+def render_app():
+    """ Безопасная отдача index.html """
+    try:
+        return render_template('index.html')
+    except Exception:
+        index_file = os.path.join(TEMPLATE_DIR, 'index.html')
+        if os.path.exists(index_file):
+            with open(index_file, 'r', encoding='utf-8') as f:
+                return f.read()
+        return jsonify({'error': 'index.html not found'}), 404
 
 def init_db():
     try:
@@ -98,9 +114,12 @@ def init_db():
                     except Exception:
                         pass
     except Exception as e:
-        print(f"Ошибка БД: {e}")
+        print(f"Ошибка БД при старте: {e}")
 
-init_db()
+try:
+    init_db()
+except Exception:
+    pass
 
 ADMIN_USERNAMES = ['MrDarko', 'Sunflower']
 
@@ -108,15 +127,18 @@ def get_current_user():
     user_id = session.get('user_id')
     if not user_id:
         return None
-    user = User.query.get(user_id)
-    if user:
-        user.last_seen = datetime.utcnow()
-        if user.username in ADMIN_USERNAMES and user.role != 'admin':
-            user.role = 'admin'
-        db.session.commit()
-    return user
+    try:
+        user = User.query.get(user_id)
+        if user:
+            user.last_seen = datetime.utcnow()
+            if user.username in ADMIN_USERNAMES and user.role != 'admin':
+                user.role = 'admin'
+            db.session.commit()
+        return user
+    except Exception:
+        return None
 
-# ==================== МАРШРУТЫ АВТОРИЗАЦИИ И API ====================
+# ==================== МАРШРУТЫ API И СТРАНИЦ ====================
 
 @app.route('/api/status')
 def status():
@@ -126,7 +148,7 @@ def status():
 @app.route('/api/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return render_template('index.html')
+        return render_app()
 
     data = request.get_json(silent=True) or request.form
     username = data.get('username', '').strip()
@@ -136,7 +158,7 @@ def login():
     if not user or not check_password_hash(user.password, password):
         if request.is_json:
             return jsonify({'error': 'Неверный логин или пароль'}), 400
-        return render_template('index.html', error='Неверный логин или пароль')
+        return render_app()
 
     if user.username in ADMIN_USERNAMES:
         user.role = 'admin'
@@ -153,7 +175,7 @@ def login():
 @app.route('/api/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
-        return render_template('index.html')
+        return render_app()
 
     data = request.get_json(silent=True) or request.form
     username = data.get('username', '').strip()
@@ -162,12 +184,12 @@ def register():
     if not username or not password:
         if request.is_json:
             return jsonify({'error': 'Заполните все поля'}), 400
-        return render_template('index.html', error='Заполните все поля')
+        return render_app()
 
     if User.query.filter_by(username=username).first():
         if request.is_json:
             return jsonify({'error': 'Имя пользователя уже занято'}), 400
-        return render_template('index.html', error='Имя пользователя уже занято')
+        return render_app()
 
     hashed_pw = generate_password_hash(password)
     role = 'admin' if username in ADMIN_USERNAMES else 'user'
@@ -247,14 +269,14 @@ def admin_users():
     users = User.query.order_by(User.id.asc()).all()
     return jsonify([u.to_dict() for u in users])
 
-# ==================== УНИВЕРСАЛЬНЫЙ ПЕРЕХВАТЧИК ====================
+# ==================== CATCH-ALL ROUTE ====================
 
 @app.route('/', defaults={'path': ''}, methods=['GET'])
 @app.route('/<path:path>', methods=['GET'])
 def serve_spa(path):
     if path.startswith('api/'):
         return jsonify({'error': 'API endpoint not found'}), 404
-    return render_template('index.html')
+    return render_app()
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
