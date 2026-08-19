@@ -45,6 +45,76 @@
                         <circle cx="50" cy="5" r="4" fill="#4da6ff"/>
                         <circle cx="80" cy="15" r="3" fill="#ff4d4d"/>
                     </svg>
+                {% elif user and user.selected_frame == 'lightning' %}
+                    <svg class="frame-lightning-svg" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="56" fill="none" stroke="#4da6ff" stroke-width="3" stroke-dasharray="10 6" class="lightning-ring"/>
+                        <path class="lightning-bolt" d="M64,4 L44,54 L58,54 L52,96 L84,44 L66,44 Z" fill="#a3d8ff" stroke="#4da6ff" stroke-width="1.5"/>
+                    </svg>
+                {% elif user and user.selected_frame == 'fire' %}
+                    <svg class="frame-fire-svg" viewBox="0 0 120 40">
+                        <path class="fire-flame fire-flame-1" d="M20,40 C15,25 25,20 20,5 C35,15 35,30 25,40 Z" fill="#ff6b1a"/>
+                        <path class="fire-flame fire-flame-2" d="M60,40 C53,20 68,15 60,0 C80,10 78,28 68,40 Z" fill="#ff8c00"/>
+                        <path class="fire-flame fire-flame-3" d="M100,40 C95,25 105,20 100,5 C115,15 115,30 105,40 Z" fill="#ffb347"/>
+                    </svg>
+                {% elif user and user.selected_frame == 'dust' %}
+                    <div class="frame-dust-glow"></div>
+                {% elif user and user.selected_frame == 'ufo' %}
+                    <svg class="frame-ufo-svg" viewBox="0 0 120 120">
+                        <g class="ufo-craft">
+                            <ellipse cx="60" cy="14" rx="26" ry="8" fill="#c0c0c0" stroke="#8a8a8a" stroke-width="1.5"/>
+                            <ellipse cx="60" cy="9" rx="12" ry="7" fill="#8fd8ff" stroke="#4da6ff" stroke-width="1"/>
+                            <circle cx="48" cy="15" r="2" fill="#ffe066"/>
+                            <circle cx="60" cy="17" r="2" fill="#ffe066"/>
+                            <circle cx="72" cy="15" r="2" fill="#ffe066"/>
+                        </g>
+                        <polygon class="ufo-beam" points="50,18 70,18 90,90 30,90" fill="url(#beamGrad)"/>
+                        <defs>
+                            <linearGradient id="beamGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#8fd8ff" stop-opacity="0.55"/>
+                                <stop offset="100%" stop-color="#8fd8ff" stop-opacity="0"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                {% elif user and user.selected_frame == 'saturn' %}
+                    <svg class="frame-saturn-svg" viewBox="0 0 140 140">
+                        <ellipse cx="70" cy="70" rx="66" ry="20" fill="none" stroke="#e0c48c" stroke-width="4" opacity="0.9"/>
+                        <ellipse cx="70" cy="70" rx="66" ry="20" fill="none" stroke="#a9895e" stroke-width="1" opacity="0.6"/>
+                    </svg>
+                {% elif user and user.selected_frame == 'comet' %}
+                    <svg class="frame-comet-svg" viewBox="0 0 120 120">
+                        <path class="comet-tail" d="M100,20 L40,80 L48,86 L104,30 Z" fill="url(#cometGrad)"/>
+                        <circle class="comet-head" cx="102" cy="18" r="6" fill="#fff6d8"/>
+                        <defs>
+                            <linearGradient id="cometGrad" x1="1" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#fff6d8" stop-opacity="0.9"/>
+                                <stop offset="100%" stop-color="#fff6d8" stop-opacity="0"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                {% elif user and user.selected_frame == 'rocket' %}
+                    <svg class="frame-rocket-svg" viewBox="0 0 120 120">
+                        <g class="rocket-craft">
+                            <path d="M95,95 C90,80 90,65 95,55 C100,65 100,80 95,95 Z" fill="#e0e0e0" stroke="#9a9a9a" stroke-width="1.5"/>
+                            <circle cx="95" cy="65" r="4" fill="#4da6ff"/>
+                            <path d="M90,90 L82,100 L90,97 Z" fill="#ff6b1a"/>
+                            <path d="M100,90 L108,100 L100,97 Z" fill="#ff6b1a"/>
+                            <path class="rocket-exhaust" d="M92,97 L98,97 L95,110 Z" fill="#ffb347"/>
+                        </g>
+                    </svg>
+                {% elif user and user.selected_frame == 'alien' %}
+                    <svg class="frame-alien-svg" viewBox="0 0 120 120">
+                        <g class="alien-peek">
+                            <ellipse cx="18" cy="60" rx="14" ry="18" fill="#7ed957" stroke="#4caf3d" stroke-width="1.5"/>
+                            <ellipse cx="12" cy="55" rx="4" ry="6" fill="#0d1b0d" transform="rotate(-20 12 55)"/>
+                            <ellipse cx="24" cy="55" rx="4" ry="6" fill="#0d1b0d" transform="rotate(20 24 55)"/>
+                        </g>
+                    </svg>
+                {% elif user and user.selected_frame == 'crystal' %}
+                    <svg class="frame-crystal-svg" viewBox="0 0 120 120">
+                        <polygon points="60,4 84,30 76,60 60,116 44,60 36,30" fill="none" stroke="#8fd8ff" stroke-width="2" opacity="0.9"/>
+                        <polygon points="60,4 84,30 60,44 36,30" fill="#c9f0ff" opacity="0.35"/>
+                        <line x1="60" y1="4" x2="60" y2="116" stroke="#8fd8ff" stroke-width="1" opacity="0.5"/>
+                    </svg>
                 {% endif %}
                 <img src="{{ user.avatar_url if user and user.avatar_url else 'https://api.dicebear.com/7.x/bottts/svg?seed=Mars' }}" class="profile-avatar" alt="Avatar">
                 <span class="online-status-dot {% if user.is_online %}online{% else %}offline{% endif %}" title="{% if user.is_online %}В сети{% else %}Не в сети{% endif %}"></span>
@@ -132,6 +202,121 @@
                         <h4>Корона</h4>
                         <button onclick="applyFrame('crown')" class="btn btn-primary btn-sm btn-full">
                             {% if user.selected_frame == 'crown' %}Надето{% else %}Надеть{% endif %}
+                        </button>
+                    </div>
+
+                    <div class="shop-card {% if user.selected_frame == 'lightning' %}active{% endif %}">
+                        <div class="preview-box">
+                            <svg class="preview-lightning" viewBox="0 0 60 60">
+                                <circle cx="30" cy="30" r="26" fill="none" stroke="#4da6ff" stroke-width="2" stroke-dasharray="6 4"/>
+                                <path d="M32,4 L22,28 L29,28 L26,50 L42,24 L34,24 Z" fill="#a3d8ff" stroke="#4da6ff" stroke-width="1"/>
+                            </svg>
+                        </div>
+                        <h4>Молния</h4>
+                        <button onclick="applyFrame('lightning')" class="btn btn-primary btn-sm btn-full">
+                            {% if user.selected_frame == 'lightning' %}Надето{% else %}Надеть{% endif %}
+                        </button>
+                    </div>
+
+                    <div class="shop-card {% if user.selected_frame == 'fire' %}active{% endif %}">
+                        <div class="preview-box">
+                            <svg class="preview-fire" viewBox="0 0 60 40">
+                                <path d="M30,40 C20,25 35,18 30,2 C50,14 48,30 38,40 Z" fill="#ff8c00"/>
+                            </svg>
+                        </div>
+                        <h4>Огонь</h4>
+                        <button onclick="applyFrame('fire')" class="btn btn-primary btn-sm btn-full">
+                            {% if user.selected_frame == 'fire' %}Надето{% else %}Надеть{% endif %}
+                        </button>
+                    </div>
+
+                    <div class="shop-card {% if user.selected_frame == 'dust' %}active{% endif %}">
+                        <div class="preview-box">
+                            <div class="preview-dust"></div>
+                        </div>
+                        <h4>Марсианская пыль</h4>
+                        <button onclick="applyFrame('dust')" class="btn btn-primary btn-sm btn-full">
+                            {% if user.selected_frame == 'dust' %}Надето{% else %}Надеть{% endif %}
+                        </button>
+                    </div>
+
+                    <div class="shop-card {% if user.selected_frame == 'ufo' %}active{% endif %}">
+                        <div class="preview-box">
+                            <svg viewBox="0 0 60 40" width="50" height="34">
+                                <ellipse cx="30" cy="10" rx="16" ry="5" fill="#c0c0c0" stroke="#8a8a8a" stroke-width="1"/>
+                                <ellipse cx="30" cy="7" rx="7" ry="4" fill="#8fd8ff" stroke="#4da6ff" stroke-width="0.5"/>
+                                <polygon points="22,13 38,13 46,36 14,36" fill="#8fd8ff" opacity="0.35"/>
+                            </svg>
+                        </div>
+                        <h4>НЛО</h4>
+                        <button onclick="applyFrame('ufo')" class="btn btn-primary btn-sm btn-full">
+                            {% if user.selected_frame == 'ufo' %}Надето{% else %}Надеть{% endif %}
+                        </button>
+                    </div>
+
+                    <div class="shop-card {% if user.selected_frame == 'saturn' %}active{% endif %}">
+                        <div class="preview-box">
+                            <svg viewBox="0 0 60 30" width="52" height="26">
+                                <ellipse cx="30" cy="15" rx="26" ry="7" fill="none" stroke="#e0c48c" stroke-width="3"/>
+                            </svg>
+                        </div>
+                        <h4>Кольца Сатурна</h4>
+                        <button onclick="applyFrame('saturn')" class="btn btn-primary btn-sm btn-full">
+                            {% if user.selected_frame == 'saturn' %}Надето{% else %}Надеть{% endif %}
+                        </button>
+                    </div>
+
+                    <div class="shop-card {% if user.selected_frame == 'comet' %}active{% endif %}">
+                        <div class="preview-box">
+                            <svg viewBox="0 0 60 40" width="50" height="34">
+                                <path d="M50,10 L20,30 L24,33 L52,15 Z" fill="#fff6d8" opacity="0.7"/>
+                                <circle cx="51" cy="9" r="3" fill="#fff6d8"/>
+                            </svg>
+                        </div>
+                        <h4>Комета</h4>
+                        <button onclick="applyFrame('comet')" class="btn btn-primary btn-sm btn-full">
+                            {% if user.selected_frame == 'comet' %}Надето{% else %}Надеть{% endif %}
+                        </button>
+                    </div>
+
+                    <div class="shop-card {% if user.selected_frame == 'rocket' %}active{% endif %}">
+                        <div class="preview-box">
+                            <svg viewBox="0 0 60 60" width="46" height="46">
+                                <path d="M46,46 C43,37 43,29 46,23 C49,29 49,37 46,46 Z" fill="#e0e0e0" stroke="#9a9a9a" stroke-width="1"/>
+                                <path d="M44,44 L39,50 L44,48 Z" fill="#ff6b1a"/>
+                                <path d="M48,44 L53,50 L48,48 Z" fill="#ff6b1a"/>
+                            </svg>
+                        </div>
+                        <h4>Ракета</h4>
+                        <button onclick="applyFrame('rocket')" class="btn btn-primary btn-sm btn-full">
+                            {% if user.selected_frame == 'rocket' %}Надето{% else %}Надеть{% endif %}
+                        </button>
+                    </div>
+
+                    <div class="shop-card {% if user.selected_frame == 'alien' %}active{% endif %}">
+                        <div class="preview-box">
+                            <svg viewBox="0 0 60 60" width="46" height="46">
+                                <ellipse cx="30" cy="30" rx="14" ry="18" fill="#7ed957" stroke="#4caf3d" stroke-width="1.5"/>
+                                <ellipse cx="24" cy="25" rx="4" ry="6" fill="#0d1b0d" transform="rotate(-20 24 25)"/>
+                                <ellipse cx="36" cy="25" rx="4" ry="6" fill="#0d1b0d" transform="rotate(20 36 25)"/>
+                            </svg>
+                        </div>
+                        <h4>Инопланетянин</h4>
+                        <button onclick="applyFrame('alien')" class="btn btn-primary btn-sm btn-full">
+                            {% if user.selected_frame == 'alien' %}Надето{% else %}Надеть{% endif %}
+                        </button>
+                    </div>
+
+                    <div class="shop-card {% if user.selected_frame == 'crystal' %}active{% endif %}">
+                        <div class="preview-box">
+                            <svg viewBox="0 0 60 60" width="46" height="46">
+                                <polygon points="30,3 42,15 38,30 30,58 22,30 18,15" fill="none" stroke="#8fd8ff" stroke-width="2"/>
+                                <polygon points="30,3 42,15 30,22 18,15" fill="#c9f0ff" opacity="0.4"/>
+                            </svg>
+                        </div>
+                        <h4>Кристалл</h4>
+                        <button onclick="applyFrame('crystal')" class="btn btn-primary btn-sm btn-full">
+                            {% if user.selected_frame == 'crystal' %}Надето{% else %}Надеть{% endif %}
                         </button>
                     </div>
                 </div>
