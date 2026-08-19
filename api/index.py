@@ -165,14 +165,26 @@ def upload_avatar():
         flash('Файл не выбран!', 'error')
         return redirect(url_for('profile'))
 
-    avatar_url = save_avatar_to_github(file, user.username)
-    if avatar_url:
-        user.avatar_url = avatar_url
-        db.session.commit()
-        flash('Аватарка успешно сохранена на GitHub!', 'success')
-    else:
-        flash('Ошибка при загрузке на GitHub. Проверьте GITHUB_TOKEN.', 'error')
+    file_bytes = file.read()
     
+    # Ограничение размера файла (максимум 2 МБ)
+    if len(file_bytes) > 2 * 1024 * 1024:
+        flash('Файл слишком большой! Максимум 2 МБ.', 'error')
+        return redirect(url_for('profile'))
+
+    # Определение формата изображения
+    ext = file.filename.split('.')[-1].lower() if '.' in file.filename else 'png'
+    if ext not in ['jpg', 'jpeg', 'png', 'gif', 'webp']:
+        ext = 'png'
+
+    # Кодирование в Data URL для сохранения в БД
+    encoded_b64 = base64.b64encode(file_bytes).decode('utf-8')
+    avatar_data_url = f"data:image/{ext};base64,{encoded_b64}"
+
+    user.avatar_url = avatar_data_url
+    db.session.commit()
+
+    flash('Аватарка успешно обновлена!', 'success')
     return redirect(url_for('profile'))
 
 @app.route('/shop/buy-frame', methods=['POST'])
