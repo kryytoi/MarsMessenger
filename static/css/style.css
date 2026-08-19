@@ -496,6 +496,123 @@ input:focus {
     font-weight: 700;
     backdrop-filter: blur(10px);
 }
+/* Поддержка динамических тем CSS */
+:root, [data-theme="mars"] {
+    --bg-dark: #07080c;
+    --accent-color: #ff3b4b;
+    --card-border: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="purple"] {
+    --bg-dark: #0a0612;
+    --accent-color: #a855f7;
+    --card-border: rgba(168, 85, 247, 0.2);
+}
+
+[data-theme="green"] {
+    --bg-dark: #040d0a;
+    --accent-color: #10b981;
+    --card-border: rgba(16, 185, 129, 0.2);
+}
+
+/* Индикатор онлайн */
+.online-status-dot {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid #090a0f;
+}
+.online-status-dot.online { background: #22c55e; box-shadow: 0 0 10px #22c55e; }
+.online-status-dot.offline { background: #64748b; }
+
+/* Кастомные элементы форм */
+.custom-select, .custom-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.status-badge-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+}
+
+.user-bio-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    line-height: 1.4;
+}
+
+/* Селектор тем */
+.theme-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.theme-btn {
+    padding: 14px;
+    border-radius: var(--radius-md);
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-weight: 700;
+    color: #fff;
+}
+.theme-mars { background: #1a080a; border-color: #ff3b4b; }
+.theme-purple { background: #12081a; border-color: #a855f7; }
+.theme-green { background: #061a12; border-color: #10b981; }
+.theme-btn.active { box-shadow: 0 0 15px currentColor; }
+
+/* Кнопка админки */
+.btn-admin {
+    background: rgba(255, 183, 3, 0.15);
+    color: var(--admin-gold);
+    border: 1px solid rgba(255, 183, 3, 0.3);
+}
+
+/* Таблица админ-панели */
+.max-wide { max-width: 1100px; }
+.table-responsive { overflow-x: auto; margin-top: 20px; }
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.admin-table th, .admin-table td {
+    padding: 14px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.table-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-cell { display: flex; align-items: center; gap: 12px; }
+
+.badge-status {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+.badge-status.online { color: #22c55e; }
+.badge-status.offline { color: #64748b; }
 
 .flash-card.success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
 .flash-card.error { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
