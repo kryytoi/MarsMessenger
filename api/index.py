@@ -76,6 +76,11 @@ def register():
     flash(f'Добро пожаловать в Mars, {username}!', 'success')
     return redirect(url_for('profile'))
 
+@app.route('/init-db')
+def init_db():
+    db.create_all()
+    return "База данных успешно обновлена!"
+
 @app.route('/login', methods=['POST'])
 def login():
     username = request.form.get('username', '').strip()
