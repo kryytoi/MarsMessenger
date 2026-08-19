@@ -250,21 +250,77 @@ def update_profile():
 @app.route('/api/messages', methods=['GET', 'POST'])
 def handle_messages():
     user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Необходима авторизация'}), 401
+
     if request.method == 'POST':
-        if not user:
-            return jsonify({'error': 'Необходима авторизация'}), 401
         data = request.get_json() or {}
         content = data.get('content', '').strip()
+        receiver_id = data.get('receiver_id')
         if not content:
             return jsonify({'error': 'Пустое сообщение'}), 400
-        msg = Message(sender_id=user.id, content=content)
+        if not receiver_id:
+            return jsonify({'error': 'Не указан получатель'}), 400
+        msg = Message(sender_id=user.id, receiver_id=receiver_id, content=content)
         db.session.add(msg)
         db.session.commit()
         return jsonify({'message': 'Отправлено', 'data': msg.to_dict()})
 
-    messages = Message.query.filter_by(receiver_id=None).order_by(Message.timestamp.desc()).limit(50).all()
+    # GET: history of a private dialogue with ?with=<user_id>
+    with_id = request.args.get('with', type=int)
+    if not with_id:
+        return jsonify({'error': 'Не указан собеседник (параметр with)'}), 400
+
+    messages = Message.query.filter(
+        db.or_(
+            db.and_(Message.sender_id == user.id, Message.receiver_id == with_id),
+            db.and_(Message.sender_id == with_id, Message.receiver_id == user.id)
+        )
+    ).order_by(Message.timestamp.desc()).limit(100).all()
     messages.reverse()
     return jsonify([m.to_dict() for m in messages])
+
+@app.route('/api/users/search', methods=['GET'])
+def search_users():
+    """ Глубокий поиск по нику: и среди тех, с кем уже переписывались, и среди новых людей. """
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Необходима авторизация'}), 401
+
+    q = request.args.get('q', '').strip()
+    query = User.query.filter(User.id != user.id)
+    if q:
+        query = query.filter(User.username.ilike(f'%{q}%'))
+    users = query.order_by(User.username.asc()).limit(30).all()
+    return jsonify([u.to_dict() for u in users])
+
+@app.route('/api/conversations', methods=['GET'])
+def conversations():
+    """ Список диалогов текущего пользователя: собеседник + последнее сообщение. """
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Необходима авторизация'}), 401
+
+    msgs = Message.query.filter(
+        db.or_(Message.sender_id == user.id, Message.receiver_id == user.id)
+    ).filter(Message.receiver_id.isnot(None)).order_by(Message.timestamp.desc()).all()
+
+    seen = set()
+    result = []
+    for m in msgs:
+        other_id = m.receiver_id if m.sender_id == user.id else m.sender_id
+        if other_id in seen:
+            continue
+        seen.add(other_id)
+        other = User.query.get(other_id)
+        if not other:
+            continue
+        result.append({
+            'user': other.to_dict(),
+            'last_message': m.content,
+            'last_timestamp': m.timestamp.strftime('%H:%M:%S') if m.timestamp else ''
+        })
+    return jsonify(result)
 
 @app.route('/api/admin/users', methods=['GET'])
 def admin_users():
