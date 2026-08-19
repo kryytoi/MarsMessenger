@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <defs>
+    <!-- Марсианское красное свечение -->
+    <radialGradient id="marsGlow" cx="50%" cy="0%" r="60%">
+      <stop offset="0%" stop-color="#ff3b4b" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#07080c" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Фиолетовая космическая туманность -->
+    <radialGradient id="nebula" cx="85%" cy="65%" r="55%">
+      <stop offset="0%" stop-color="#7832ff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#07080c" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Глубокий синий градиент снизу -->
+    <radialGradient id="blueGlow" cx="15%" cy="85%" r="50%">
+      <stop offset="0%" stop-color="#1e3c72" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#07080c" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Сетка из микро-точек -->
+    <pattern id="dotGrid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#ffffff" fill-opacity="0.07"/>
+    </pattern>
+  </defs>
+
+  <!-- Базовый тёмный фон -->
+  <rect width="100%" height="100%" fill="#07080c"/>
+
+  <!-- Слои туманностей -->
+  <rect width="100%" height="100%" fill="url(#marsGlow)"/>
+  <rect width="100%" height="100%" fill="url(#nebula)"/>
+  <rect width="100%" height="100%" fill="url(#blueGlow)"/>
+
+  <!-- Технологичная сетка -->
+  <rect width="100%" height="100%" fill="url(#dotGrid)"/>
+
+  <!-- Звёзды -->
+  <g fill="#ffffff">
+    <circle cx="120" cy="180" r="1.5" opacity="0.8"/>
+    <circle cx="340" cy="420" r="1.2" opacity="0.4"/>
+    <circle cx="580" cy="150" r="2" opacity="0.9"/>
+    <circle cx="820" cy="320" r="1" opacity="0.5"/>
+    <circle cx="1050" cy="80" r="1.8" opacity="0.7"/>
+    <circle cx="1380" cy="260" r="1" opacity="0.3"/>
+    <circle cx="1680" cy="120" r="2.2" opacity="0.9"/>
+    <circle cx="240" cy="740" r="1" opacity="0.5"/>
+    <circle cx="490" cy="890" r="1.5" opacity="0.6"/>
+    <circle cx="910" cy="670" r="2" opacity="0.4"/>
+    <circle cx="1250" cy="830" r="1.2" opacity="0.8"/>
+    <circle cx="1580" cy="710" r="1.5" opacity="0.5"/>
+    <circle cx="1790" cy="940" r="1" opacity="0.7"/>
+    <circle cx="70" cy="520" r="1.5" opacity="0.6"/>
+    <circle cx="1450" cy="530" r="1.8" opacity="0.6"/>
+  </g>
+</svg>
