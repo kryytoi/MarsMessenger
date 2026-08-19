@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from flask import Flask, request, jsonify, session, render_template
+from flask import Flask, request, jsonify, session, render_template, redirect
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text
@@ -8,7 +8,7 @@ from sqlalchemy import text
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'mars-messenger-super-secret-key-2026')
 
-# Настройка базы данных (Neon.tech PostgreSQL или SQLite в /tmp для Vercel)
+# Настройка базы данных
 db_url = os.environ.get('DATABASE_URL', 'sqlite:////tmp/mars.db')
 if db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
@@ -72,7 +72,7 @@ class Message(db.Model):
             'timestamp': self.timestamp.strftime('%H:%M:%S') if self.timestamp else ''
         }
 
-# ==================== МИГРАЦИЯ И ИНИЦИАЛИЗАЦИЯ БД ====================
+# ==================== МИГРАЦИЯ БД ====================
 
 def init_db():
     try:
@@ -98,11 +98,9 @@ def init_db():
                     except Exception:
                         pass
     except Exception as e:
-        print(f"Ошибка при инициализации БД: {e}")
+        print(f"Ошибка БД: {e}")
 
 init_db()
-
-# ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
 
 ADMIN_USERNAMES = ['MrDarko', 'Sunflower']
 
@@ -118,23 +116,58 @@ def get_current_user():
         db.session.commit()
     return user
 
-# ==================== API ROUTES ====================
+# ==================== МАРШРУТЫ АВТОРИЗАЦИИ И API ====================
 
 @app.route('/api/status')
 def status():
     return jsonify({"status": "online", "system": "Mars Messenger API", "version": "1.0"})
 
-@app.route('/api/register', methods=['POST'])
+@app.route('/login', methods=['GET', 'POST'])
+@app.route('/api/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('index.html')
+
+    data = request.get_json(silent=True) or request.form
+    username = data.get('username', '').strip()
+    password = data.get('password', '').strip()
+
+    user = User.query.filter_by(username=username).first()
+    if not user or not check_password_hash(user.password, password):
+        if request.is_json:
+            return jsonify({'error': 'Неверный логин или пароль'}), 400
+        return render_template('index.html', error='Неверный логин или пароль')
+
+    if user.username in ADMIN_USERNAMES:
+        user.role = 'admin'
+    
+    user.last_seen = datetime.utcnow()
+    db.session.commit()
+    session['user_id'] = user.id
+
+    if request.is_json:
+        return jsonify({'message': 'Успешный вход', 'user': user.to_dict()})
+    return redirect('/')
+
+@app.route('/register', methods=['GET', 'POST'])
+@app.route('/api/register', methods=['GET', 'POST'])
 def register():
-    data = request.get_json() or {}
+    if request.method == 'GET':
+        return render_template('index.html')
+
+    data = request.get_json(silent=True) or request.form
     username = data.get('username', '').strip()
     password = data.get('password', '').strip()
 
     if not username or not password:
-        return jsonify({'error': 'Заполните все поля'}), 400
+        if request.is_json:
+            return jsonify({'error': 'Заполните все поля'}), 400
+        return render_template('index.html', error='Заполните все поля')
 
     if User.query.filter_by(username=username).first():
-        return jsonify({'error': 'Имя пользователя уже занято'}), 400
+        if request.is_json:
+            return jsonify({'error': 'Имя пользователя уже занято'}), 400
+        return render_template('index.html', error='Имя пользователя уже занято')
 
     hashed_pw = generate_password_hash(password)
     role = 'admin' if username in ADMIN_USERNAMES else 'user'
@@ -147,36 +180,22 @@ def register():
         custom_status='На Марсе 🚀',
         theme='mars'
     )
-    
     db.session.add(new_user)
     db.session.commit()
 
     session['user_id'] = new_user.id
-    return jsonify({'message': 'Регистрация успешна', 'user': new_user.to_dict()})
 
-@app.route('/api/login', methods=['POST'])
-def login():
-    data = request.get_json() or {}
-    username = data.get('username', '').strip()
-    password = data.get('password', '').strip()
+    if request.is_json:
+        return jsonify({'message': 'Регистрация успешна', 'user': new_user.to_dict()})
+    return redirect('/')
 
-    user = User.query.filter_by(username=username).first()
-    if not user or not check_password_hash(user.password, password):
-        return jsonify({'error': 'Неверный логин или пароль'}), 400
-
-    if user.username in ADMIN_USERNAMES:
-        user.role = 'admin'
-    
-    user.last_seen = datetime.utcnow()
-    db.session.commit()
-
-    session['user_id'] = user.id
-    return jsonify({'message': 'Успешный вход', 'user': user.to_dict()})
-
-@app.route('/api/logout', methods=['POST', 'GET'])
+@app.route('/logout', methods=['GET', 'POST'])
+@app.route('/api/logout', methods=['GET', 'POST'])
 def logout():
     session.pop('user_id', None)
-    return jsonify({'message': 'Вышли из системы'})
+    if request.is_json:
+        return jsonify({'message': 'Вышли из системы'})
+    return redirect('/')
 
 @app.route('/api/me', methods=['GET'])
 def me():
@@ -192,61 +211,26 @@ def update_profile():
         return jsonify({'error': 'Необходима авторизация'}), 401
 
     data = request.get_json() or {}
-    
-    if 'bio' in data:
-        user.bio = data['bio']
-    if 'custom_status' in data:
-        user.custom_status = data['custom_status']
-    if 'theme' in data:
-        user.theme = data['theme']
-    if 'avatar_url' in data:
-        user.avatar_url = data['avatar_url']
-    if 'selected_frame' in data:
-        user.selected_frame = data['selected_frame']
+    if 'bio' in data: user.bio = data['bio']
+    if 'custom_status' in data: user.custom_status = data['custom_status']
+    if 'theme' in data: user.theme = data['theme']
+    if 'avatar_url' in data: user.avatar_url = data['avatar_url']
+    if 'selected_frame' in data: user.selected_frame = data['selected_frame']
 
     db.session.commit()
-    return jsonify({'message': 'Профиль успешно обновлен', 'user': user.to_dict()})
-
-@app.route('/api/change-password', methods=['POST'])
-def change_password():
-    user = get_current_user()
-    if not user:
-        return jsonify({'error': 'Необходима авторизация'}), 401
-
-    data = request.get_json() or {}
-    old_password = data.get('old_password', '')
-    new_password = data.get('new_password', '')
-
-    if not check_password_hash(user.password, old_password):
-        return jsonify({'error': 'Старый пароль введен неверно'}), 400
-
-    if len(new_password) < 4:
-        return jsonify({'error': 'Пароль должен содержать не менее 4 символов'}), 400
-
-    user.password = generate_password_hash(new_password)
-    db.session.commit()
-    return jsonify({'message': 'Пароль успешно изменен'})
+    return jsonify({'message': 'Профиль обновлен', 'user': user.to_dict()})
 
 @app.route('/api/messages', methods=['GET', 'POST'])
 def handle_messages():
     user = get_current_user()
-    
     if request.method == 'POST':
         if not user:
             return jsonify({'error': 'Необходима авторизация'}), 401
-
         data = request.get_json() or {}
         content = data.get('content', '').strip()
-        receiver_id = data.get('receiver_id')
-
         if not content:
-            return jsonify({'error': 'Сообщение не может быть пустым'}), 400
-
-        msg = Message(
-            sender_id=user.id,
-            receiver_id=receiver_id if receiver_id else None,
-            content=content
-        )
+            return jsonify({'error': 'Пустое сообщение'}), 400
+        msg = Message(sender_id=user.id, content=content)
         db.session.add(msg)
         db.session.commit()
         return jsonify({'message': 'Отправлено', 'data': msg.to_dict()})
@@ -260,27 +244,10 @@ def admin_users():
     user = get_current_user()
     if not user or user.role != 'admin':
         return jsonify({'error': 'Доступ запрещен'}), 403
-
     users = User.query.order_by(User.id.asc()).all()
     return jsonify([u.to_dict() for u in users])
 
-@app.route('/api/admin/user/<int:user_id>/role', methods=['POST'])
-def admin_set_role(user_id):
-    user = get_current_user()
-    if not user or user.role != 'admin':
-        return jsonify({'error': 'Доступ запрещен'}), 403
-
-    target_user = User.query.get(user_id)
-    if not target_user:
-        return jsonify({'error': 'Пользователь не найден'}), 404
-
-    data = request.get_json() or {}
-    new_role = data.get('role', 'user')
-    target_user.role = new_role
-    db.session.commit()
-    return jsonify({'message': f'Роль пользователя {target_user.username} изменена на {new_role}'})
-
-# ==================== CATCH-ALL ROUTE (В САМОМ КОНЦЕ!) ====================
+# ==================== УНИВЕРСАЛЬНЫЙ ПЕРЕХВАТЧИК ====================
 
 @app.route('/', defaults={'path': ''}, methods=['GET'])
 @app.route('/<path:path>', methods=['GET'])
