@@ -3,6 +3,7 @@ from datetime import datetime
 from flask import Flask, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Flask, request, jsonify, session, render_template
 from sqlalchemy import text
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
@@ -124,6 +125,10 @@ def get_current_user():
 
 @app.route('/')
 def home():
+    return render_template('index.html')
+
+@app.route('/api/status')
+def status():
     return jsonify({"status": "online", "system": "Mars Messenger API", "version": "1.0"})
 
 # Регистрация
