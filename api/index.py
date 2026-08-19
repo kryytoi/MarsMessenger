@@ -274,6 +274,20 @@ def admin_users():
     users = User.query.order_by(User.id.asc()).all()
     return jsonify([u.to_dict() for u in users])
 
+@app.route('/profile', methods=['GET'])
+def profile_page():
+    user = get_current_user()
+    if not user:
+        return redirect('/login')
+    return render_template('profile.html', user=user)
+
+@app.route('/admin', methods=['GET'])
+def admin_page():
+    user = get_current_user()
+    if not user or user.role != 'admin':
+        return redirect('/')
+    return render_template('admin.html', user=user)
+
 # ==================== CATCH-ALL ROUTE ====================
 
 @app.route('/', defaults={'path': ''}, methods=['GET'])
