@@ -6,11 +6,21 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
-app = Flask(__name__, template_folder='../templates', static_folder='../static')
+# Динамическое определение путей для Vercel
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+app = Flask(
+    __name__,
+    template_folder=os.path.join(BASE_DIR, 'templates'),
+    static_folder=os.path.join(BASE_DIR, 'static')
+)
+
 app.secret_key = os.getenv('SECRET_KEY', 'mars_messenger_ultra_secret_2026')
 
-db_url = os.getenv('DATABASE_URL', 'sqlite:///local.db')
-if db_url.startswith("postgres://"):
+# Если DATABASE_URL не задан (PostgreSQL), перенаправляем SQLite в изолированную временную папку /tmp
+db_url = os.getenv('DATABASE_URL')
+if not db_url:
+    db_url = f"sqlite:///{os.path.join('/tmp', 'local.db')}"
+elif db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url
@@ -31,8 +41,12 @@ class User(db.Model):
     avatar_url = db.Column(db.Text, default='')
     active_frame = db.Column(db.String(50), default='crown')
 
-with app.app_context():
-    db.create_all()
+# Безопасное создание таблиц без аварийного завершения сервера
+try:
+    with app.app_context():
+        db.create_all()
+except Exception as err:
+    print(f"Ошибка инициализации БД: {err}")
 
 def get_current_user():
     if 'user_id' in session:
@@ -102,11 +116,6 @@ def register():
     session['user_id'] = new_user.id
     flash(f'Добро пожаловать в Mars, {username}!', 'success')
     return redirect(url_for('profile'))
-
-@app.route('/init-db')
-def init_db():
-    db.create_all()
-    return "База данных успешно обновлена!"
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -200,6 +209,3 @@ def logout():
     session.pop('user_id', None)
     flash('Вы вышли из аккаунта.', 'info')
     return redirect(url_for('home'))
-
-if __name__ == '__main__':
-    app.run(debug=True)
