@@ -46,23 +46,19 @@
                                 <strong>{{ u.username }}</strong>
                             </td>
                             <td>
-                                {% if u.is_online %}
-                                    <span class="badge-status online"><i class="fa-solid fa-circle"></i> Online</span>
-                                {% else %}
-                                    <span class="badge-status offline"><i class="fa-solid fa-circle"></i> Offline</span>
-                                {% endif %}
+                                <span class="badge-status online"><i class="fa-solid fa-circle"></i> {{ u.last_seen }}</span>
                             </td>
                             <td>
-                                <span class="badge-role {% if u.role == 'Администратор' %}role-admin{% else %}role-user{% endif %}">
+                                <span class="badge-role {% if u.role == 'admin' %}role-admin{% else %}role-user{% endif %}">
                                     {{ u.role }}
                                 </span>
                             </td>
-                            <td>{{ u.active_frame }}</td>
+                            <td>{{ u.selected_frame }}</td>
                             <td>
                                 <form action="/admin/manage-user/{{ u.id }}" method="POST" class="admin-actions-form">
                                     <input type="hidden" name="action" value="toggle_role">
                                     <button type="submit" class="btn btn-secondary btn-sm">
-                                        {% if u.role == 'Администратор' %}Снять админа{% else %}Сделать админом{% endif %}
+                                        {% if u.role == 'admin' %}Снять админа{% else %}Сделать админом{% endif %}
                                     </button>
                                 </form>
                             </td>
