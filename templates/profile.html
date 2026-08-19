@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="{{ user.theme if user else 'mars' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Марс — Профиль {{ user.username if user else 'Гость' }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Марс — Профиль {{ user.username }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -18,6 +16,9 @@
             <span class="brand-mars">MARS</span> <span class="brand-sub">MESSENGER</span>
         </a>
         <div class="nav-auth">
+            {% if user and user.role == 'Администратор' %}
+                <a href="/admin" class="btn btn-admin btn-sm"><i class="fa-solid fa-shield-cat"></i> Админка</a>
+            {% endif %}
             <a href="/" class="btn btn-secondary btn-sm"><i class="fa-solid fa-house"></i> На главную</a>
             <a href="/logout" class="btn btn-danger btn-sm"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a>
         </div>
@@ -34,7 +35,7 @@
     {% endwith %}
 
     <div class="profile-layout">
-        <!-- Левая карточка: Профиль -->
+        <!-- Левая карточка: Инфо о юзере -->
         <div class="glass-card profile-card">
             <div class="avatar-container">
                 {% if user and user.active_frame == 'crown' %}
@@ -46,6 +47,7 @@
                     </svg>
                 {% endif %}
                 <img src="{{ user.avatar_url if user and user.avatar_url else 'https://api.dicebear.com/7.x/bottts/svg?seed=Mars' }}" class="profile-avatar" alt="Avatar">
+                <span class="online-status-dot {% if user.is_online %}online{% else %}offline{% endif %}" title="{% if user.is_online %}В сети{% else %}Не в сети{% endif %}"></span>
             </div>
 
             <form action="/upload-avatar" method="POST" enctype="multipart/form-data" class="upload-form">
@@ -55,69 +57,81 @@
                 <input type="file" id="avatar-input" name="avatar" accept="image/*" onchange="this.form.submit()" style="display:none;">
             </form>
 
-            <h2 class="profile-username">{{ user.username if user else 'Пользователь' }}</h2>
-            <span class="badge-role {% if user and user.role == 'Администратор' %}role-admin{% else %}role-user{% endif %}">
-                <i class="fa-solid {% if user and user.role == 'Администратор' %}fa-shield-halved{% else %}fa-user{% endif %}"></i> {{ user.role if user else 'Пользователь' }}
+            <h2 class="profile-username">{{ user.username }}</h2>
+            <div class="status-badge-pill"><i class="fa-solid fa-bolt"></i> {{ user.custom_status }}</div>
+
+            <span class="badge-role {% if user.role == 'Администратор' %}role-admin{% else %}role-user{% endif %}">
+                <i class="fa-solid {% if user.role == 'Администратор' %}fa-shield-halved{% else %}fa-user{% endif %}"></i> {{ user.role }}
             </span>
 
+            <p class="user-bio-text">{{ user.bio or 'Описание профиля не заполнено.' }}</p>
+
             <div class="info-group">
-                <span class="info-label"><i class="fa-solid fa-calendar-days"></i> Дата регистрации</span>
-                <span class="info-value">
-                    {% if user and user.created_at %}
-                        {{ user.created_at.strftime('%d.%m.%Y') }}
-                    {% else %}
-                        Не указана
-                    {% endif %}
-                </span>
+                <span class="info-label"><i class="fa-solid fa-calendar-days"></i> Регистрация</span>
+                <span class="info-value">{{ user.created_at.strftime('%d.%m.%Y') if user.created_at else 'Ранее' }}</span>
             </div>
         </div>
 
-        <!-- Правая часть: Настройки и Магазин -->
+        <!-- Правая часть: Настройки, Темы и Статусы -->
         <div class="profile-settings-grid">
-            <!-- Настройки -->
+            <!-- Статус и Био -->
             <div class="glass-card settings-card">
-                <h2><i class="fa-solid fa-user-gear"></i> Настройки профиля</h2>
-                <form action="/change_password" method="POST" class="settings-form">
+                <h2><i class="fa-solid fa-pen-to-square"></i> Статус и О себе</h2>
+                <form action="/profile/update-bio" method="POST" class="settings-form">
                     <div class="form-group">
-                        <label>Текущий пароль</label>
-                        <input type="password" name="current_password" required placeholder="••••••••">
+                        <label>Статус</label>
+                        <select name="custom_status" class="custom-select">
+                            <option value="На Марсе 🚀" {% if user.custom_status == 'На Марсе 🚀' %}selected{% endif %}>🚀 На Марсе</option>
+                            <option value="Кодит 💻" {% if user.custom_status == 'Кодит 💻' %}selected{% endif %}>💻 Кодит</option>
+                            <option value="Занят 🛑" {% if user.custom_status == 'Занят 🛑' %}selected{% endif %}>🛑 Занят</option>
+                            <option value="Отдыхает ☕" {% if user.custom_status == 'Отдыхает ☕' %}selected{% endif %}>☕ Отдыхает</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label>Новый пароль</label>
-                        <input type="password" name="new_password" required placeholder="Минимум 4 символа">
+                        <label>О себе</label>
+                        <textarea name="bio" rows="3" class="custom-textarea" placeholder="Расскажите немного о себе...">{{ user.bio }}</textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-key"></i> Изменить пароль</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Сохранить инфо</button>
                 </form>
+            </div>
+
+            <!-- Выбор темы оформления -->
+            <div class="glass-card settings-card">
+                <h2><i class="fa-solid fa-palette"></i> Темы оформления</h2>
+                <div class="theme-selector-grid">
+                    <button onclick="setTheme('mars')" class="theme-btn theme-mars {% if user.theme == 'mars' %}active{% endif %}">
+                        <span>Марс</span>
+                    </button>
+                    <button onclick="setTheme('purple')" class="theme-btn theme-purple {% if user.theme == 'purple' %}active{% endif %}">
+                        <span>Неон</span>
+                    </button>
+                    <button onclick="setTheme('green')" class="theme-btn theme-green {% if user.theme == 'green' %}active{% endif %}">
+                        <span>Киберпанк</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Магазин рамок -->
             <div class="glass-card settings-card">
                 <h2><i class="fa-solid fa-store"></i> Магазин рамок</h2>
                 <div class="shop-grid">
-                    <div class="shop-card {% if user and user.active_frame == 'none' %}active{% endif %}">
-                        <div class="preview-box">
-                            <span class="no-frame-txt">Без рамки</span>
-                        </div>
+                    <div class="shop-card {% if user.active_frame == 'none' %}active{% endif %}">
+                        <div class="preview-box"><span class="no-frame-txt">Без рамки</span></div>
                         <h4>Обычная</h4>
-                        <p class="price-free">Бесплатно</p>
                         <button onclick="applyFrame('none')" class="btn btn-secondary btn-sm btn-full">
-                            {% if user and user.active_frame == 'none' %}Надето{% else %}Надеть{% endif %}
+                            {% if user.active_frame == 'none' %}Надето{% else %}Надеть{% endif %}
                         </button>
                     </div>
 
-                    <div class="shop-card {% if user and user.active_frame == 'crown' %}active{% endif %}">
+                    <div class="shop-card {% if user.active_frame == 'crown' %}active{% endif %}">
                         <div class="preview-box">
                             <svg class="preview-crown" viewBox="0 0 100 50">
                                 <path d="M10,40 L20,15 L40,30 L50,5 L60,30 L80,15 L90,40 Z" fill="#ffd700" stroke="#e6c200" stroke-width="2"/>
-                                <circle cx="20" cy="15" r="3" fill="#ff4d4d"/>
-                                <circle cx="50" cy="5" r="4" fill="#4da6ff"/>
-                                <circle cx="80" cy="15" r="3" fill="#ff4d4d"/>
                             </svg>
                         </div>
                         <h4>Корона</h4>
-                        <p class="price-free">Бесплатно</p>
                         <button onclick="applyFrame('crown')" class="btn btn-primary btn-sm btn-full">
-                            {% if user and user.active_frame == 'crown' %}Надето{% else %}Надеть{% endif %}
+                            {% if user.active_frame == 'crown' %}Надето{% else %}Надеть{% endif %}
                         </button>
                     </div>
                 </div>
@@ -132,6 +146,17 @@
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({frame_id: frameId})
         }).then(() => location.reload());
+    }
+
+    function setTheme(themeName) {
+        fetch('/profile/update-theme', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({theme: themeName})
+        }).then(() => {
+            document.documentElement.setAttribute('data-theme', themeName);
+            location.reload();
+        });
     }
     </script>
 </body>
