@@ -589,5 +589,17 @@ def serve_spa(path):
         return jsonify({'error': 'API endpoint not found'}), 404
     return render_app()
 
+from werkzeug.exceptions import HTTPException
+
+@app.errorhandler(Exception)
+def handle_any_error(e):
+    if isinstance(e, HTTPException):
+        return e
+    wants_json = request.path.startswith('/api/') or request.is_json or \
+        'application/json' in (request.headers.get('Accept') or '')
+    if wants_json:
+        return jsonify({'error': f'Внутренняя ошибка сервера: {e}'}), 500
+    raise e
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
