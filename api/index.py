@@ -283,6 +283,19 @@ def desktop_login_page():
       ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти';
   }}
 
+  async function callJson(url, options) {{
+    const resp = await fetch(url, options);
+    const text = await resp.text();
+    let data;
+    try {{ data = JSON.parse(text); }}
+    catch (e) {{
+      const preview = text.length > 150 ? text.slice(0, 150) + '…' : text;
+      throw new Error('Сервер вернул ' + resp.status + ' и не-JSON ответ: ' + preview);
+    }}
+    if (!resp.ok) {{ throw new Error(data.error || ('Ошибка ' + resp.status)); }}
+    return data;
+  }}
+
   async function submitForm() {{
     const btn = document.getElementById('submit');
     const err = document.getElementById('err');
@@ -293,20 +306,17 @@ def desktop_login_page():
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
       const endpoint = mode === 'login' ? '/api/login' : '/api/register';
-      const resp = await fetch(endpoint, {{
+
+      await callJson(endpoint, {{
         method: 'POST',
         headers: {{ 'Content-Type': 'application/json' }},
         credentials: 'include',
         body: JSON.stringify({{ username, password }})
       }});
-      const data = await resp.json();
-      if (!resp.ok) {{ throw new Error(data.error || 'Ошибка входа'); }}
 
-      const codeResp = await fetch('/api/auth/desktop/code', {{
+      const codeData = await callJson('/api/auth/desktop/code', {{
         method: 'POST', credentials: 'include'
       }});
-      const codeData = await codeResp.json();
-      if (!codeResp.ok) {{ throw new Error(codeData.error || 'Не удалось создать код'); }}
 
       if (returnUri) {{
         window.location.href = returnUri + (returnUri.includes('?') ? '&' : '?') + 'code=' + encodeURIComponent(codeData.code);
