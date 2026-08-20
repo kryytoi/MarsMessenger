@@ -39,6 +39,7 @@ class User(db.Model):
     custom_status = db.Column(db.String(50), default='На Марсе 🚀')
     theme = db.Column(db.String(30), default='mars')
     avatar_url = db.Column(db.Text, default='')
+    banner_url = db.Column(db.Text, default='')
     selected_frame = db.Column(db.String(50), default='none')
     coins = db.Column(db.Integer, default=100)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -53,6 +54,7 @@ class User(db.Model):
             'custom_status': self.custom_status or 'На Марсе 🚀',
             'theme': self.theme or 'mars',
             'avatar_url': self.avatar_url or '',
+            'banner_url': self.banner_url or '',
             'selected_frame': self.selected_frame or 'none',
             'coins': self.coins or 0,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else '',
@@ -105,6 +107,7 @@ def init_db():
                 ('custom_status', 'VARCHAR(50) DEFAULT "На Марсе 🚀"'),
                 ('theme', 'VARCHAR(30) DEFAULT "mars"'),
                 ('avatar_url', 'TEXT DEFAULT ""'),
+                ('banner_url', 'TEXT DEFAULT ""'),
                 ('selected_frame', 'VARCHAR(50) DEFAULT "none"'),
                 ('coins', 'INTEGER DEFAULT 100'),
                 ('created_at', 'TIMESTAMP'),
@@ -231,6 +234,16 @@ def me():
         return jsonify({'authenticated': False}), 401
     return jsonify({'authenticated': True, 'user': user.to_dict()})
 
+@app.route('/api/frames', methods=['GET'])
+def list_frames():
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Необходима авторизация'}), 401
+    return jsonify({
+        'frames': sorted(ALLOWED_FRAMES),
+        'selected': user.selected_frame or 'none'
+    })
+
 @app.route('/api/profile/update', methods=['POST'])
 def update_profile():
     user = get_current_user()
@@ -242,6 +255,7 @@ def update_profile():
     if 'custom_status' in data: user.custom_status = data['custom_status']
     if 'theme' in data: user.theme = data['theme']
     if 'avatar_url' in data: user.avatar_url = data['avatar_url']
+    if 'banner_url' in data: user.banner_url = data['banner_url']
     if 'selected_frame' in data: user.selected_frame = data['selected_frame']
 
     db.session.commit()
