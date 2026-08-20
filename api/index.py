@@ -1,6 +1,8 @@
 import os
+import secrets
+import time
 from datetime import datetime
-from flask import Flask, request, jsonify, session, render_template, redirect
+from flask import Flask, request, jsonify, session, render_template, redirect, make_response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import text
@@ -226,6 +228,125 @@ def logout():
     if request.is_json:
         return jsonify({'message': 'Вышли из системы'})
     return redirect('/')
+
+# ==================== ВХОД ЧЕРЕЗ САЙТ ДЛЯ ДЕСКТОП-ПРИЛОЖЕНИЯ ====================
+# Приложение открывает /auth/desktop-login?return_uri=http://127.0.0.1:PORT/callback
+# в системном браузере. Пользователь логинится (или уже залогинен), после чего
+# страница получает одноразовый код и редиректит браузер на return_uri?code=...
+# Приложение принимает код на локальном сервере и меняет его на сессию через
+# /api/auth/desktop/exchange.
+# NOTE: коды хранятся в памяти процесса — на serverless (Vercel) это работает,
+# пока оба запроса (issue + exchange) попадают на один и тот же тёплый инстанс,
+# что в рамках одного логина за пару секунд почти всегда так и есть.
+DESKTOP_LOGIN_CODES = {}
+DESKTOP_CODE_TTL = 300  # секунд
+
+@app.route('/auth/desktop-login', methods=['GET'])
+def desktop_login_page():
+    return_uri = request.args.get('return_uri', '')
+    return f'''<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<title>Mars Messenger — вход для приложения</title>
+<style>
+  body {{ background:#07080C; color:#fff; font-family:Segoe UI,Arial,sans-serif;
+         display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }}
+  .card {{ background:#0F1015; border-radius:20px; padding:36px; width:340px; }}
+  h1 {{ font-size:22px; margin:0 0 6px; }}
+  p.sub {{ color:#9A9AA5; font-size:13px; margin:0 0 20px; }}
+  input {{ width:100%; box-sizing:border-box; background:#1A1A20; border:none; border-radius:12px;
+           color:#fff; padding:14px 16px; font-size:15px; margin-bottom:12px; }}
+  button {{ width:100%; background:#7832FF; color:#fff; border:none; border-radius:12px;
+            padding:14px; font-size:15px; font-weight:600; cursor:pointer; }}
+  button:disabled {{ opacity:.5; cursor:default; }}
+  .tabs {{ display:flex; gap:8px; margin-bottom:16px; }}
+  .tabs span {{ color:#6EA8FF; cursor:pointer; font-size:13px; text-decoration:underline; }}
+  .err {{ color:#F87171; font-size:13px; margin:-4px 0 12px; min-height:16px; }}
+</style></head>
+<body>
+  <div class="card">
+    <h1 id="title">Войти</h1>
+    <p class="sub">Авторизуй Mars Messenger Desktop, чтобы продолжить в приложении.</p>
+    <input id="username" placeholder="Login" autocomplete="username" />
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+    <div class="err" id="err"></div>
+    <button id="submit" onclick="submitForm()">Войти и продолжить в приложении</button>
+    <div class="tabs"><span id="toggle" onclick="toggleMode()">Нет аккаунта? Зарегистрироваться</span></div>
+  </div>
+<script>
+  let mode = 'login';
+  const returnUri = {return_uri!r};
+
+  function toggleMode() {{
+    mode = mode === 'login' ? 'register' : 'login';
+    document.getElementById('title').textContent = mode === 'login' ? 'Войти' : 'Регистрация';
+    document.getElementById('toggle').textContent = mode === 'login'
+      ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти';
+  }}
+
+  async function submitForm() {{
+    const btn = document.getElementById('submit');
+    const err = document.getElementById('err');
+    err.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Подождите…';
+    try {{
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const endpoint = mode === 'login' ? '/api/login' : '/api/register';
+      const resp = await fetch(endpoint, {{
+        method: 'POST',
+        headers: {{ 'Content-Type': 'application/json' }},
+        credentials: 'include',
+        body: JSON.stringify({{ username, password }})
+      }});
+      const data = await resp.json();
+      if (!resp.ok) {{ throw new Error(data.error || 'Ошибка входа'); }}
+
+      const codeResp = await fetch('/api/auth/desktop/code', {{
+        method: 'POST', credentials: 'include'
+      }});
+      const codeData = await codeResp.json();
+      if (!codeResp.ok) {{ throw new Error(codeData.error || 'Не удалось создать код'); }}
+
+      if (returnUri) {{
+        window.location.href = returnUri + (returnUri.includes('?') ? '&' : '?') + 'code=' + encodeURIComponent(codeData.code);
+      }} else {{
+        document.querySelector('.card').innerHTML = '<h1>Готово ✅</h1><p class="sub">Можешь вернуться в приложение.</p>';
+      }}
+    }} catch (e) {{
+      err.textContent = e.message;
+      btn.disabled = false;
+      btn.textContent = 'Войти и продолжить в приложении';
+    }}
+  }}
+</script>
+</body></html>'''
+
+@app.route('/api/auth/desktop/code', methods=['POST'])
+def issue_desktop_code():
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Необходима авторизация'}), 401
+
+    code = secrets.token_urlsafe(24)
+    DESKTOP_LOGIN_CODES[code] = {'user_id': user.id, 'expires': time.time() + DESKTOP_CODE_TTL}
+    return jsonify({'code': code})
+
+@app.route('/api/auth/desktop/exchange', methods=['POST'])
+def exchange_desktop_code():
+    data = request.get_json(silent=True) or {}
+    code = data.get('code', '')
+
+    entry = DESKTOP_LOGIN_CODES.pop(code, None)
+    if not entry or entry['expires'] < time.time():
+        return jsonify({'error': 'Код недействителен или истёк. Попробуй войти через сайт ещё раз.'}), 400
+
+    user = User.query.get(entry['user_id'])
+    if not user:
+        return jsonify({'error': 'Пользователь не найден'}), 404
+
+    session['user_id'] = user.id
+    return jsonify({'message': 'Вход выполнен', 'user': user.to_dict()})
 
 @app.route('/api/me', methods=['GET'])
 def me():
