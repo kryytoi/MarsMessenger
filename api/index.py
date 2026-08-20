@@ -104,25 +104,30 @@ def init_db():
         with app.app_context():
             db.create_all()
             columns_to_add = [
-                ('role', 'VARCHAR(20) DEFAULT "user"'),
-                ('bio', 'TEXT DEFAULT "Исследователь Марса"'),
-                ('custom_status', 'VARCHAR(50) DEFAULT "На Марсе 🚀"'),
-                ('theme', 'VARCHAR(30) DEFAULT "mars"'),
-                ('avatar_url', 'TEXT DEFAULT ""'),
-                ('banner_url', 'TEXT DEFAULT ""'),
-                ('selected_frame', 'VARCHAR(50) DEFAULT "none"'),
+                ('role', "VARCHAR(20) DEFAULT 'user'"),
+                ('bio', "TEXT DEFAULT 'Исследователь Марса'"),
+                ('custom_status', "VARCHAR(50) DEFAULT 'На Марсе 🚀'"),
+                ('theme', "VARCHAR(30) DEFAULT 'mars'"),
+                ('avatar_url', "TEXT DEFAULT ''"),
+                ('banner_url', "TEXT DEFAULT ''"),
+                ('selected_frame', "VARCHAR(50) DEFAULT 'none'"),
                 ('coins', 'INTEGER DEFAULT 100'),
                 ('created_at', 'TIMESTAMP'),
                 ('last_seen', 'TIMESTAMP')
             ]
-            
+
             with db.engine.connect() as conn:
                 for col_name, col_type in columns_to_add:
                     try:
                         conn.execute(text(f'ALTER TABLE "user" ADD COLUMN {col_name} {col_type};'))
                         conn.commit()
-                    except Exception:
-                        pass
+                    except Exception as col_err:
+                        conn.rollback()
+                        # "column already exists" is expected on every warm start; anything
+                        # else is worth seeing in the Vercel function logs.
+                        if 'already exists' not in str(col_err).lower() and \
+                           'duplicate column' not in str(col_err).lower():
+                            print(f"Не удалось добавить колонку {col_name}: {col_err}")
     except Exception as e:
         print(f"Ошибка БД при старте: {e}")
 
