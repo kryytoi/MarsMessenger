@@ -6,12 +6,18 @@
     <title>Mars Messenger</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+    <!-- Живой космос на фоне -->
     <div class="bg-glow"></div>
+    <div class="stars-layer" aria-hidden="true"></div>
+    <div class="stars-layer stars-layer-2" aria-hidden="true"></div>
+    <div class="shooting-star ss1" aria-hidden="true"></div>
+    <div class="shooting-star ss2" aria-hidden="true"></div>
+    <div class="shooting-star ss3" aria-hidden="true"></div>
 
     <nav class="navbar">
         <a href="/" class="nav-brand">
@@ -42,20 +48,30 @@
     <main class="main-container">
         <!-- Главный баннер -->
         <div class="glass-card hero-section">
-            <div class="logo-wrapper">
+            <!-- Декоративная планета Марс -->
+            <div class="planet-deco planet-main" aria-hidden="true">
+                <div class="planet-ring"></div>
+            </div>
+            <div class="planet-deco planet-small" aria-hidden="true"></div>
+
+            <div class="logo-wrapper reveal">
                 <img src="/static/images/logo.png" class="hero-logo" alt="Mars Logo" onerror="this.style.display='none'">
             </div>
-            
-            <h1 class="hero-title">MARS MESSENGER</h1>
-            <p class="hero-subtitle">Скорость света. Абсолютная приватность. Новое поколение общения.</p>
+
+            <div class="hero-badge reveal">
+                <span class="pulse-dot"></span> Система в сети
+            </div>
+
+            <h1 class="hero-title reveal">MARS <span class="grad-text">MESSENGER</span></h1>
+            <p class="hero-subtitle reveal">Скорость света. Абсолютная приватность. Новое поколение общения.</p>
 
             {% if user %}
-                <div class="hero-actions">
+                <div class="hero-actions reveal">
                     <a href="/profile" class="btn btn-primary btn-lg"><i class="fa-solid fa-user"></i> Мой профиль</a>
                     <a href="#" class="btn btn-secondary btn-lg"><i class="fa-solid fa-download"></i> Скачать клиент</a>
                 </div>
             {% else %}
-                <div class="auth-box-container">
+                <div class="auth-box-container reveal">
                     <div class="auth-card">
                         <h3>Вход в Mars</h3>
                         <form action="/login" method="POST" class="auth-form">
@@ -85,11 +101,27 @@
             {% endif %}
         </div>
 
+        <!-- Статистика -->
+        <div class="stats-strip reveal">
+            <div class="stat-item">
+                <div class="stat-number" data-target="10000">0</div>
+                <div class="stat-label">сообщений в секунду</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="99">0</div><span class="stat-suffix">.9%</span>
+                <div class="stat-label">аптайм</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" data-target="0">0</div>
+                <div class="stat-label">взломов</div>
+            </div>
+        </div>
+
         <!-- Секция: Причины пользоваться Марсом -->
         <div class="features-section">
-            <h2 class="features-header-title">Причины пользоваться Марсом</h2>
+            <h2 class="features-header-title reveal">Причины пользоваться Марсом</h2>
             <div class="features-grid">
-                <div class="glass-card feature-card">
+                <div class="glass-card feature-card reveal" style="--delay:0">
                     <div class="feature-icon">
                         <i class="fa-solid fa-lock"></i>
                     </div>
@@ -97,7 +129,7 @@
                     <p>Конфиденциальность на максимум.</p>
                 </div>
 
-                <div class="glass-card feature-card">
+                <div class="glass-card feature-card reveal" style="--delay:1">
                     <div class="feature-icon">
                         <i class="fa-solid fa-palette"></i>
                     </div>
@@ -105,7 +137,7 @@
                     <p>Стиль на свой вкус и цвет.</p>
                 </div>
 
-                <div class="glass-card feature-card">
+                <div class="glass-card feature-card reveal" style="--delay:2">
                     <div class="feature-icon">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
@@ -115,5 +147,71 @@
             </div>
         </div>
     </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand"><span class="brand-mars">MARS</span> <span class="brand-sub">MESSENGER</span></div>
+            <p class="footer-tagline">Связь через космос — для землян.</p>
+            <div class="footer-links">
+                <a href="/" class="footer-link"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="footer-link"><i class="fa-brands fa-telegram"></i></a>
+                <a href="#" class="footer-link"><i class="fa-brands fa-discord"></i></a>
+            </div>
+            <p class="footer-copy">© 2026 Mars Messenger. Придумано на Земле, работает во всей Солнечной системе.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ==== Появление секций при скролле ====
+        const revealEls = document.querySelectorAll('.reveal');
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((e) => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('in-view');
+                    io.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.12 });
+        revealEls.forEach((el, i) => {
+            el.style.setProperty('--i', i);
+            io.observe(el);
+        });
+
+        // ==== Анимированные счётчики статистики ====
+        const counters = document.querySelectorAll('.stat-number[data-target]');
+        const cio = new IntersectionObserver((entries) => {
+            entries.forEach((e) => {
+                if (!e.isIntersecting) return;
+                const el = e.target;
+                cio.unobserve(el);
+                const target = parseInt(el.dataset.target, 10);
+                const dur = 1400;
+                const start = performance.now();
+                const step = (now) => {
+                    const p = Math.min((now - start) / dur, 1);
+                    const eased = 1 - Math.pow(1 - p, 3);
+                    el.textContent = target >= 1000
+                        ? (Math.floor(eased * target / 1000)).toLocaleString('ru-RU') + 'K'
+                        : Math.floor(eased * target);
+                    if (p < 1) requestAnimationFrame(step);
+                };
+                requestAnimationFrame(step);
+            });
+        }, { threshold: 0.4 });
+        counters.forEach((c) => cio.observe(c));
+
+        // ==== Свечение за курсором ====
+        const glow = document.createElement('div');
+        glow.className = 'cursor-glow';
+        document.body.appendChild(glow);
+        let gx = -100, gy = -100, tx = -100, ty = -100;
+        window.addEventListener('mousemove', (e) => { tx = e.clientX; ty = e.clientY; });
+        (function animateGlow() {
+            gx += (tx - gx) * 0.12;
+            gy += (ty - gy) * 0.12;
+            glow.style.transform = `translate(${gx - 250}px, ${gy - 250}px)`;
+            requestAnimationFrame(animateGlow);
+        })();
+    </script>
 </body>
 </html>

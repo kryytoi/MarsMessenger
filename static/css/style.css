@@ -824,3 +824,270 @@ input:focus {
 @media (max-width: 768px) {
     .profile-layout { grid-template-columns: 1fr; }
 }
+
+/* =========================================================
+   ВКЛЮЧЕНИЕ «КРАСОТЫ» ДЛЯ ГЛАВНОЙ СТРАНИЦЫ
+   ========================================================= */
+
+/* --- Кастомный скроллбар --- */
+::-webkit-scrollbar { width: 11px; }
+::-webkit-scrollbar-track { background: #0a0b12; }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #ff3b4b, #a855f7);
+    border-radius: 10px;
+    border: 2px solid #0a0b12;
+}
+
+/* --- Звёздный фон (2 слоя с мерцанием) --- */
+.stars-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+        radial-gradient(1px 1px at 25% 20%, #fff, transparent 100%),
+        radial-gradient(1.5px 1.5px at 60% 40%, rgba(255,255,255,.9), transparent),
+        radial-gradient(1px 1px at 80% 15%, #fff, transparent),
+        radial-gradient(2px 2px at 40% 70%, rgba(255,255,255,.7), transparent),
+        radial-gradient(1px 1px at 10% 80%, #fff, transparent),
+        radial-gradient(1.5px 1.5px at 90% 65%, rgba(255,255,255,.85), transparent);
+    background-size: 900px 900px, 700px 700px, 1100px 1100px, 800px 800px, 1200px 1200px, 950px 950px;
+    background-repeat: repeat;
+    animation: twinkle 6s ease-in-out infinite;
+}
+.stars-layer-2 {
+    background-size: 1500px 1500px, 1900px 1900px, 1300px 1300px;
+    opacity: .7;
+    animation-duration: 9s;
+}
+@keyframes twinkle {
+    0%, 100% { opacity: .35; }
+    50% { opacity: .9; }
+}
+
+/* --- Падающие метеоры --- */
+.shooting-star {
+    position: fixed;
+    width: 2px; height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+}
+.shooting-star::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 150px; height: 1.5px;
+    background: linear-gradient(90deg, #fff, transparent);
+    transform: translateX(-100%);
+}
+.ss1 { top: 18%; left: 82%; animation: shoot 7s linear infinite; animation-delay: 1s; }
+.ss2 { top: 42%; left: 14%; animation: shoot 9s linear infinite; animation-delay: 5s; }
+.ss3 { top: 66%; left: 72%; animation: shoot 11s linear infinite; animation-delay: 8.5s; }
+@keyframes shoot {
+    0%   { transform: translate(0,0) rotate(-35deg); opacity: 0; }
+    3%   { opacity: 1; }
+    9%   { transform: translate(-280px, 190px) rotate(-35deg); opacity: 0; }
+    100% { transform: translate(-280px, 190px) rotate(-35deg); opacity: 0; }
+}
+
+/* --- Hero: декоративные планеты --- */
+.hero-section { position: relative; overflow: hidden; }
+.planet-deco {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+}
+.planet-main {
+    width: 260px; height: 260px;
+    right: -50px; top: -60px;
+    background: radial-gradient(circle at 35% 30%, #ff9a7a 0%, #ff5f4d 20%, #d94436 45%, #8f2a22 70%, #4a1412 100%);
+    box-shadow: 0 0 80px rgba(255, 80, 60, .35), inset -28px -20px 65px rgba(0, 0, 0, .65);
+    opacity: .5;
+    animation: planetFloat 9s ease-in-out infinite;
+}
+.planet-main::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 45%, rgba(0,0,0,.35) 0 8px, transparent 9px),
+        radial-gradient(circle at 62% 30%, rgba(0,0,0,.3) 0 6px, transparent 7px),
+        radial-gradient(circle at 70% 62%, rgba(0,0,0,.25) 0 9px, transparent 10px),
+        radial-gradient(circle at 45% 72%, rgba(0,0,0,.25) 0 5px, transparent 6px);
+}
+.planet-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 160%; height: 160%;
+    transform: translate(-50%, -50%) rotateX(74deg);
+    border: 3px solid rgba(255, 170, 120, .35);
+    border-radius: 50%;
+}
+.planet-small {
+    width: 120px; height: 120px;
+    left: -35px; bottom: -35px;
+    background: radial-gradient(circle at 35% 30%, #c9a5ff 0%, #9a6bff 35%, #5a2fbf 70%, #2a1355 100%);
+    box-shadow: 0 0 55px rgba(150, 90, 255, .3), inset -15px -12px 40px rgba(0, 0, 0, .6);
+    opacity: .4;
+    animation: planetFloat 12s ease-in-out infinite reverse;
+}
+@keyframes planetFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-18px); }
+}
+
+/* Контент hero поверх планет */
+.hero-section .logo-wrapper,
+.hero-section .hero-badge,
+.hero-section .hero-title,
+.hero-section .hero-subtitle,
+.hero-section .hero-actions,
+.hero-section .auth-box-container {
+    position: relative;
+    z-index: 2;
+}
+
+/* --- Бейдж «Система в сети» --- */
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid var(--card-border);
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: .5px;
+}
+.pulse-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, .55); }
+    70% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+/* --- Анимированный градиентный текст --- */
+.grad-text {
+    background: linear-gradient(90deg, #ff3b4b, #a855f7, #4da6ff, #ff3b4b);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradFlow 8s linear infinite;
+}
+@keyframes gradFlow {
+    to { background-position: 300% center; }
+}
+
+/* --- Статистика --- */
+.stats-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    width: 100%;
+    margin-top: 26px;
+}
+.stat-item {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 22px 16px;
+    text-align: center;
+    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.stat-item:hover {
+    transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, .2);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, .35);
+}
+.stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    line-height: 1;
+}
+.stat-suffix { font-size: 1.4rem; font-weight: 800; color: #ff3b4b; margin-left: 2px; }
+.stat-label { font-size: .8rem; color: var(--text-secondary); margin-top: 6px; letter-spacing: .3px; }
+
+/* --- Появление при скролле --- */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1);
+    transition-delay: calc(var(--delay, 0) * 120ms + var(--i, 0) * 0ms);
+}
+.reveal.in-view {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- Свечение за курсором --- */
+.cursor-glow {
+    position: fixed;
+    top: 0; left: 0;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    background: radial-gradient(circle, rgba(255, 80, 120, .07) 0%, rgba(120, 50, 255, .05) 40%, transparent 70%);
+}
+
+/* --- Футер --- */
+.footer {
+    width: 100%;
+    margin-top: 70px;
+    padding: 40px 20px 32px;
+    border-top: 1px solid var(--card-border);
+    background: rgba(0, 0, 0, .25);
+    z-index: 2;
+}
+.footer-inner {
+    max-width: 850px;
+    margin: 0 auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+.footer-brand { font-weight: 800; letter-spacing: 2px; font-size: 1.15rem; }
+.footer-tagline { color: var(--text-secondary); font-size: .9rem; }
+.footer-links { display: flex; gap: 14px; }
+.footer-link {
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid var(--card-border);
+    color: #fff;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: transform .25s ease, color .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.footer-link:hover {
+    transform: translateY(-3px);
+    color: #ff3b4b;
+    border-color: rgba(255, 59, 75, .5);
+    box-shadow: 0 6px 20px rgba(255, 59, 75, .25);
+}
+.footer-copy { color: var(--text-secondary); font-size: .78rem; opacity: .7; }
+
+/* --- Адаптив статистики --- */
+@media (max-width: 640px) {
+    .stats-strip { grid-template-columns: 1fr; }
+    .stat-number { font-size: 1.6rem; }
+}
